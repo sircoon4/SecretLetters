@@ -3,6 +3,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
+-- main screen
+
 entity screen_main is
     Port ( FPGA_RSTB : in  STD_LOGIC;
            CLK : in  STD_LOGIC;
