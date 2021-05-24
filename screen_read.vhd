@@ -38,5 +38,7 @@ architecture Behavioral of screen_read is
 begin
 
 
+--skim º¹È£È­
+
 end Behavioral;
 
