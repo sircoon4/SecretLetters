@@ -28,7 +28,7 @@ entity screen_code_write is
            wc_addr : out  STD_LOGIC_VECTOR (5 downto 0);
            wc_data : out  STD_LOGIC_VECTOR (3 downto 0));
 end screen_code_write;
-
+--screen code write
 architecture Behavioral of screen_code_write is
 
 begin
