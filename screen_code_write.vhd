@@ -196,7 +196,10 @@ end process;
 
 
 type seg_reg is array(0 to 5) of std_logic_vector (3 downto 0);
+type wc is array(0 to 5) of std_logic_vector (3 downto 0);
+signal wc_file : wc;
 signal seg_reg_file: seg_reg;
+signal cnt_wc : std_logic_vector(2 downto 0);
 
 
 if (push_dl='0') then
@@ -212,6 +215,31 @@ else
 	seg_reg_file(5)<=c_reg_file(5);
 	
 end if;
+
+	process(FPGA_RSTB, CLK)											-- write screen으로 보내는 데이터
+			begin
+				if FPGA_RSTB = '0' then
+					cnt_wc <= (others => '0');
+					wc_data_out <= '0';
+				elsif CLK = '1' and CLK'event then
+					if wc_enable = '1' then
+						wc_data <= wc_file(conv_integer(cnt_wc));
+						wc_addr <= cnt_wc;
+						wc_data_out <= '1';
+						if cnt_wc = "101" then
+							cnt_wc <= (others => '0');
+						else
+							cnt_wc <= cnt_wc + 1;
+						end if;
+					else
+						wc_data_out <= '0';
+					end if;
+				end if;
+			end process;
+	
+
+
+
 
 end Behavioral;
 
