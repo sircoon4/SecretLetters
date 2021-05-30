@@ -30,11 +30,8 @@ entity screen_code_write is
 end screen_code_write;
 --screen code write
 architecture Behavioral of screen_code_write is
-
-<<<<<<< HEAD
-	signal test : std_logic;
 	
-=======
+
 --kmj
 type reg is array( 0 to 31 ) of std_logic_vector( 7 downto 0 );
 signal reg_file : reg;
@@ -48,7 +45,6 @@ signal hr10_cnt, hr01_cnt: std_logic_vector(3 downto 0);--시간을 카운트하는 내부
 signal min10_cnt, min01_cnt: std_logic_vector(3 downto 0);--분을 카운트하는 내부신호
 signal sec10_cnt, sec01_cnt: std_logic_vector(3 downto 0);--초를 카운트하는 내부신호
 
->>>>>>> 3cce7cecc682873a90df7ef06d2808c8fd80ffba
 begin
 	process(FPGA_RSTB,CLK)--rst_n과 clk에 대한 프로세스
 		variable count_clk: integer range 0 to 2000000;--변수 count_clk의 범위 지정
@@ -202,9 +198,7 @@ end process;
 type seg_reg is array(0 to 5) of std_logic_vector (3 downto 0);
 signal seg_reg_file: seg_reg;
 
-<<<<<<< HEAD
-	test <= '1';
-=======
+
 if (push_dl='0') then
 	for i in 0 to 5 loop
 		seg_reg_file(i)<="0000";
@@ -218,8 +212,6 @@ else
 	seg_reg_file(5)<=c_reg_file(5);
 	
 end if;
-	
->>>>>>> 3cce7cecc682873a90df7ef06d2808c8fd80ffba
 
 end Behavioral;
 
