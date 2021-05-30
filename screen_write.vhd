@@ -59,8 +59,8 @@ signal sl_addr_beforeencode : STD_LOGIC_VECTOR (4 downto 0);
 signal sl_data_beforeencode : STD_LOGIC_VECTOR (7 downto 0);
 signal syn_code : STD_LOGIC_VECTOR (7 downto 0);
 type segmentset is array( 0 to 5 ) of std_logic_vector( 3 downto 0 ); -- 2D array declare
-signal seg_reg_file : segmentset;
-signal wc_addr_bin : STD_LOGIC_VECTOR (2 downto 0);
+signal c_reg_file : segmentset;
+
 
 
 
@@ -126,42 +126,29 @@ begin
       syn_code <= (others => '0');
    elsif CLK='1' and CLK'event then
       if wc_data_out = '1' then
-         syn_code(7 downto 6) <= seg_reg_file(3)(1 downto 0);      -- 섹렉파일은 6자리 코드를 2비트 array로타나낸거
-         syn_code(5) <= seg_reg_file(0)(0);
-         syn_code(4) <= seg_reg_file(5)(0);
-         syn_code(3) <= seg_reg_file(4)(0);
-         syn_code(2) <= seg_reg_file(1)(0);
-         syn_code(1 downto 0) <= seg_reg_file(2)(1 downto 0);
+         syn_code(7 downto 6) <= c_reg_file(3)(1 downto 0);      -- 섹렉파일은 6자리 코드를 2비트 array로타나낸거
+         syn_code(5) <= c_reg_file(0)(0);
+         syn_code(4) <= c_reg_file(5)(0);
+         syn_code(3) <= c_reg_file(4)(0);
+         syn_code(2) <= c_reg_file(1)(0);
+         syn_code(1 downto 0) <= c_reg_file(2)(1 downto 0);
       end if;
    end if;
 end process;
 
 
---------------------------------- seg_reg_file 만들기
+--------------------------------- c_reg_file 만들기
 
-
-process( wc_addr )-- 어드레스가 digit형식으로 표현되다보니 하등 쓸모없는 놈인지라 2진법으로 바꿔준다
-begin
-   case wc_addr is
-      when "000001" => wc_addr_bin <= "000";
-      when "000010" => wc_addr_bin <= "001";
-      when "000100" => wc_addr_bin <= "010";
-      when "001000" => wc_addr_bin <= "011";
-      when "010000" => wc_addr_bin <= "100";
-      when "100000" => wc_addr_bin <= "101";
-      when others => null;
-   end case;
-end process;
 
 
 
 process(FPGA_RSTB, CLK)-- 이게 진짜 섹렉만드는거
 Begin
    if FPGA_RSTB ='0' then
-      seg_reg_file <= (others => "0000");
+      c_reg_file <= (others => "0000");
    elsif CLK='1' and CLK'event then
       if wc_data_out = '1' then
-         seg_reg_file (conv_integer (wc_addr_bin)) <= wc_data;
+         c_reg_file (conv_integer (wc_addr)) <= wc_data;
       end if;
    end if;
 

@@ -38,8 +38,7 @@ architecture Behavioral of screen_read is
 signal r1_data_decode : STD_LOGIC_VECTOR (7 downto 0);
 signal syn_code : STD_LOGIC_VECTOR (7 downto 0);
 type segmentset is array( 0 to 5 ) of std_logic_vector( 3 downto 0 ); -- 2D array declare
-signal seg_reg_file : segmentset;
-signal rc_addr_bin : STD_LOGIC_VECTOR (2 downto 0);
+signal c_reg_file : segmentset;
 type reg is array( 0 to 31 ) of std_logic_vector( 7 downto 0 );	-- 32(16*2)개의 LCD display에 각각 data 형식 정의
 signal reg_file : reg;
 signal cnt : std_logic_vector(4 downto 0);
@@ -56,42 +55,27 @@ begin
 		syn_code <= (others => '0');
 	elsif CLK='1' and CLK'event then
 		if rc_data_out = '1' then
-			syn_code(7 downto 6) <= seg_reg_file(3)(1 downto 0);
-			syn_code(5) <= seg_reg_file(0)(0);
-			syn_code(4) <= seg_reg_file(5)(0);
-			syn_code(3) <= seg_reg_file(4)(0);
-			syn_code(2) <= seg_reg_file(1)(0);
-			syn_code(1 downto 0) <= seg_reg_file(2)(1 downto 0);
+			syn_code(7 downto 6) <= c_reg_file(3)(1 downto 0);
+			syn_code(5) <= c_reg_file(0)(0);
+			syn_code(4) <= c_reg_file(5)(0);
+			syn_code(3) <= c_reg_file(4)(0);
+			syn_code(2) <= c_reg_file(1)(0);
+			syn_code(1 downto 0) <= c_reg_file(2)(1 downto 0);
 		end if;
 	end if;
 end process;
 
 
---------------------------------- seg_reg_file 만들기
-
-
-process( rc_addr )
-begin
-	case rc_addr is
-		when "000001" => rc_addr_bin <= "000";
-		when "000010" => rc_addr_bin <= "001";
-		when "000100" => rc_addr_bin <= "010";
-		when "001000" => rc_addr_bin <= "011";
-		when "010000" => rc_addr_bin <= "100";
-		when "100000" => rc_addr_bin <= "101";
-		when others => null;
-	end case;
-end process;
-
+--------------------------------- c_reg_file 만들기
 
 
 process(FPGA_RSTB, CLK)
 Begin
 	if FPGA_RSTB ='0' then
-		seg_reg_file <= (others => "0000");
+		c_reg_file <= (others => "0000");
 	elsif CLK='1' and CLK'event then
 		if rc_data_out = '1' then
-			seg_reg_file (conv_integer (rc_addr_bin)) <= rc_data;
+			c_reg_file (conv_integer (rc_addr)) <= rc_data;
 		end if;
 	end if;
 end process;
@@ -174,7 +158,7 @@ end process;
           
 
 --- 세그먼트에 이렇게 보내줘도 되는건가;; 어차피 난 받은거 그대로 보내주는건데,,ㅎ
-			  
+--- 민지님 여기여기!!!!!!!!!!!!!!!!!!!!!!!!!(시작)
 
 seg_data <= rc_data;
 rc_enable <= '1';
@@ -190,6 +174,10 @@ begin
 		when others => null;
 	end case;
 end process;
+
+--- 민지님 여기여기!!!!!!!!!!!!!!!!!!!!!!!!!(끝)
+
+
 
 
 
