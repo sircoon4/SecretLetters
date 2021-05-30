@@ -45,8 +45,6 @@ signal reg_file : reg;
 signal cnt : std_logic_vector(4 downto 0);
 
 begin
-
-
 -- enable과 data_out에 대해 적절히 이해하고 쓴건가...
 
 

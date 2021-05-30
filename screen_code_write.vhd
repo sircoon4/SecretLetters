@@ -30,6 +30,7 @@ entity screen_code_write is
 end screen_code_write;
 --screen code write
 architecture Behavioral of screen_code_write is
+	
 
 --kmj
 type reg is array( 0 to 31 ) of std_logic_vector( 7 downto 0 );
@@ -197,6 +198,7 @@ end process;
 type seg_reg is array(0 to 5) of std_logic_vector (3 downto 0);
 signal seg_reg_file: seg_reg;
 
+
 if (push_dl='0') then
 	for i in 0 to 5 loop
 		seg_reg_file(i)<="0000";
@@ -210,7 +212,6 @@ else
 	seg_reg_file(5)<=c_reg_file(5);
 	
 end if;
-	
 
 end Behavioral;
 

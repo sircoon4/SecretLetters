@@ -35,8 +35,11 @@ end screen_write;
 
 architecture Behavioral of screen_write is
 
+	signal test : std_logic;
+
 begin
 
+	test <= '1';
 
 end Behavioral;
 

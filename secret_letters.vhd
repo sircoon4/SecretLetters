@@ -338,10 +338,13 @@ architecture Behavioral of secret_letters is
 	signal seg_addr_reg_arr : t_seg_addr_reg_arr;
 	type t_seg_data_reg_arr is array(0 to 4) of std_logic_vector(3 downto 0);
 	signal seg_data_reg_arr : t_seg_data_reg_arr;
+	
+	signal clk_clone : std_logic;
 begin
+	clk_clone <= CLK;
 
 	dp_module : display_module port map(
-			FPGA_RSTB, CLK,
+			FPGA_RSTB, clk_clone,
 			LCD_A, LCD_EN, LCD_D,
 			DIGIT, SEG_A, SEG_B, SEG_C, SEG_D, SEG_E, SEG_F, SEG_G, SEG_DP, 
 			lcd_w_enable_reg, lcd_data_out_reg, lcd_addr_reg, lcd_data_reg, 
@@ -349,7 +352,7 @@ begin
 			);
 	
 	scr_main : screen_main port map( 
-			FPGA_RSTB, CLK,
+			FPGA_RSTB, clk_clone,
 			lcd_w_enable_reg_arr(0), lcd_data_out_reg_arr(0), lcd_addr_reg_arr(0), lcd_data_reg_arr(0), 
 			seg_w_enable_reg_arr(0), seg_data_out_reg_arr(0), seg_addr_reg_arr(0), seg_data_reg_arr(0),
 			PUSH_UL, PUSH_UC, PUSH_UR, PUSH_DL, PUSH_DC, PUSH_DR, BINARY,
@@ -359,105 +362,109 @@ begin
 			);
 	
 	scr_code_read : screen_code_read port map( 
-			FPGA_RSTB, CLK,
-			lcd_w_enable_reg_arr(0), lcd_data_out_reg_arr(0), lcd_addr_reg_arr(0), lcd_data_reg_arr(0), 
-			seg_w_enable_reg_arr(0), seg_data_out_reg_arr(0), seg_addr_reg_arr(0), seg_data_reg_arr(0),
+			FPGA_RSTB, clk_clone,
+			lcd_w_enable_reg_arr(1), lcd_data_out_reg_arr(1), lcd_addr_reg_arr(1), lcd_data_reg_arr(1), 
+			seg_w_enable_reg_arr(1), seg_data_out_reg_arr(1), seg_addr_reg_arr(1), seg_data_reg_arr(1),
 			PUSH_UL, PUSH_UC, PUSH_UR, PUSH_DL, PUSH_DC, PUSH_DR, BINARY,
-			screen_in_reg, screen_out_reg_arr(0), 
+			screen_in_reg, screen_out_reg_arr(1), 
 			rc_enable_reg, rc_data_out_reg, rc_addr_reg, rc_data_reg
 			);
 			
 	scr_code_write : screen_code_write port map( 
-			FPGA_RSTB, CLK,
-			lcd_w_enable_reg_arr(0), lcd_data_out_reg_arr(0), lcd_addr_reg_arr(0), lcd_data_reg_arr(0), 
-			seg_w_enable_reg_arr(0), seg_data_out_reg_arr(0), seg_addr_reg_arr(0), seg_data_reg_arr(0),
+			FPGA_RSTB, clk_clone,
+			lcd_w_enable_reg_arr(2), lcd_data_out_reg_arr(2), lcd_addr_reg_arr(2), lcd_data_reg_arr(2), 
+			seg_w_enable_reg_arr(2), seg_data_out_reg_arr(2), seg_addr_reg_arr(2), seg_data_reg_arr(2),
 			PUSH_UL, PUSH_UC, PUSH_UR, PUSH_DL, PUSH_DC, PUSH_DR, BINARY,
-			screen_in_reg, screen_out_reg_arr(0), 
+			screen_in_reg, screen_out_reg_arr(2), 
 			wc_enable_reg, wc_data_out_reg, wc_addr_reg, wc_data_reg
 			);
 			
 	scr_read : screen_read port map( 
-			FPGA_RSTB, CLK,
-			lcd_w_enable_reg_arr(0), lcd_data_out_reg_arr(0), lcd_addr_reg_arr(0), lcd_data_reg_arr(0), 
-			seg_w_enable_reg_arr(0), seg_data_out_reg_arr(0), seg_addr_reg_arr(0), seg_data_reg_arr(0),
+			FPGA_RSTB, clk_clone,
+			lcd_w_enable_reg_arr(3), lcd_data_out_reg_arr(3), lcd_addr_reg_arr(3), lcd_data_reg_arr(3), 
+			seg_w_enable_reg_arr(3), seg_data_out_reg_arr(3), seg_addr_reg_arr(3), seg_data_reg_arr(3),
 			PUSH_UL, PUSH_UC, PUSH_UR, PUSH_DL, PUSH_DC, PUSH_DR, BINARY,
-			screen_in_reg, screen_out_reg_arr(0), 
+			screen_in_reg, screen_out_reg_arr(3), 
 			rl_enable_reg, rl_data_out_reg, rl_addr_reg, rl_data_reg,
 			rc_enable_reg, rc_data_out_reg, rc_addr_reg, rc_data_reg
 			);
 			
 	scr_write : screen_write port map( 
-			FPGA_RSTB, CLK,
-			lcd_w_enable_reg_arr(0), lcd_data_out_reg_arr(0), lcd_addr_reg_arr(0), lcd_data_reg_arr(0), 
-			seg_w_enable_reg_arr(0), seg_data_out_reg_arr(0), seg_addr_reg_arr(0), seg_data_reg_arr(0),
+			FPGA_RSTB, clk_clone,
+			lcd_w_enable_reg_arr(4), lcd_data_out_reg_arr(4), lcd_addr_reg_arr(4), lcd_data_reg_arr(4), 
+			seg_w_enable_reg_arr(4), seg_data_out_reg_arr(4), seg_addr_reg_arr(4), seg_data_reg_arr(4),
 			PUSH_UL, PUSH_UC, PUSH_UR, PUSH_DL, PUSH_DC, PUSH_DR, BINARY,
-			screen_in_reg, screen_out_reg_arr(0), 
+			screen_in_reg, screen_out_reg_arr(4), 
 			sl_enable_reg, sl_data_out_reg, sl_addr_reg, sl_data_reg,
 			wc_enable_reg, wc_data_out_reg, wc_addr_reg, wc_data_reg
 			);
 	
 	process(FPGA_RSTB, CLK)
 	begin
-		if screen_in_reg = "000" then -- main screen
-			lcd_w_enable_reg <= lcd_w_enable_reg_arr(0);
-			lcd_data_out_reg <= lcd_data_out_reg_arr(0);
-			lcd_addr_reg <= lcd_addr_reg_arr(0);
-			lcd_data_reg <= lcd_data_reg_arr(0);
-			
-			seg_w_enable_reg <= seg_w_enable_reg_arr(0);
-			seg_data_out_reg <= seg_data_out_reg_arr(0);
-			seg_addr_reg <= seg_addr_reg_arr(0);
-			seg_data_reg <= seg_data_reg_arr(0);
-			
-			screen_in_reg <= screen_out_reg_arr(0);
-		elsif screen_in_reg = "001" then -- code_read screen
-			lcd_w_enable_reg <= lcd_w_enable_reg_arr(1);
-			lcd_data_out_reg <= lcd_data_out_reg_arr(1);
-			lcd_addr_reg <= lcd_addr_reg_arr(1);
-			lcd_data_reg <= lcd_data_reg_arr(1);
-			
-			seg_w_enable_reg <= seg_w_enable_reg_arr(1);
-			seg_data_out_reg <= seg_data_out_reg_arr(1);
-			seg_addr_reg <= seg_addr_reg_arr(1);
-			seg_data_reg <= seg_data_reg_arr(1);
-			
-			screen_in_reg <= screen_out_reg_arr(1);
-		elsif screen_in_reg = "010" then -- code_write screen
-			lcd_w_enable_reg <= lcd_w_enable_reg_arr(2);
-			lcd_data_out_reg <= lcd_data_out_reg_arr(2);
-			lcd_addr_reg <= lcd_addr_reg_arr(2);
-			lcd_data_reg <= lcd_data_reg_arr(2);
-			
-			seg_w_enable_reg <= seg_w_enable_reg_arr(2);
-			seg_data_out_reg <= seg_data_out_reg_arr(2);
-			seg_addr_reg <= seg_addr_reg_arr(2);
-			seg_data_reg <= seg_data_reg_arr(2);
-			
-			screen_in_reg <= screen_out_reg_arr(2);
-		elsif screen_in_reg = "011" then -- read screen
-			lcd_w_enable_reg <= lcd_w_enable_reg_arr(3);
-			lcd_data_out_reg <= lcd_data_out_reg_arr(3);
-			lcd_addr_reg <= lcd_addr_reg_arr(3);
-			lcd_data_reg <= lcd_data_reg_arr(3);
-			
-			seg_w_enable_reg <= seg_w_enable_reg_arr(3);
-			seg_data_out_reg <= seg_data_out_reg_arr(3);
-			seg_addr_reg <= seg_addr_reg_arr(3);
-			seg_data_reg <= seg_data_reg_arr(3);
-			
-			screen_in_reg <= screen_out_reg_arr(3);
-		elsif screen_in_reg = "100" then -- write screen
-			lcd_w_enable_reg <= lcd_w_enable_reg_arr(4);
-			lcd_data_out_reg <= lcd_data_out_reg_arr(4);
-			lcd_addr_reg <= lcd_addr_reg_arr(4);
-			lcd_data_reg <= lcd_data_reg_arr(4);
-			
-			seg_w_enable_reg <= seg_w_enable_reg_arr(4);
-			seg_data_out_reg <= seg_data_out_reg_arr(4);
-			seg_addr_reg <= seg_addr_reg_arr(4);
-			seg_data_reg <= seg_data_reg_arr(4);
-			
-			screen_in_reg <= screen_out_reg_arr(4);
+		if(FPGA_RSTB = '0') then
+			screen_in_reg <= "000";
+		elsif(rising_edge (CLK)) then
+			if screen_in_reg = "000" then -- main screen
+				lcd_w_enable_reg <= lcd_w_enable_reg_arr(0);
+				lcd_data_out_reg <= lcd_data_out_reg_arr(0);
+				lcd_addr_reg <= lcd_addr_reg_arr(0);
+				lcd_data_reg <= lcd_data_reg_arr(0);
+				
+				seg_w_enable_reg <= seg_w_enable_reg_arr(0);
+				seg_data_out_reg <= seg_data_out_reg_arr(0);
+				seg_addr_reg <= seg_addr_reg_arr(0);
+				seg_data_reg <= seg_data_reg_arr(0);
+				
+				screen_in_reg <= screen_out_reg_arr(0);
+			elsif screen_in_reg = "001" then -- code_read screen
+				lcd_w_enable_reg <= lcd_w_enable_reg_arr(1);
+				lcd_data_out_reg <= lcd_data_out_reg_arr(1);
+				lcd_addr_reg <= lcd_addr_reg_arr(1);
+				lcd_data_reg <= lcd_data_reg_arr(1);
+				
+				seg_w_enable_reg <= seg_w_enable_reg_arr(1);
+				seg_data_out_reg <= seg_data_out_reg_arr(1);
+				seg_addr_reg <= seg_addr_reg_arr(1);
+				seg_data_reg <= seg_data_reg_arr(1);
+				
+				screen_in_reg <= screen_out_reg_arr(1);
+			elsif screen_in_reg = "010" then -- code_write screen
+				lcd_w_enable_reg <= lcd_w_enable_reg_arr(2);
+				lcd_data_out_reg <= lcd_data_out_reg_arr(2);
+				lcd_addr_reg <= lcd_addr_reg_arr(2);
+				lcd_data_reg <= lcd_data_reg_arr(2);
+				
+				seg_w_enable_reg <= seg_w_enable_reg_arr(2);
+				seg_data_out_reg <= seg_data_out_reg_arr(2);
+				seg_addr_reg <= seg_addr_reg_arr(2);
+				seg_data_reg <= seg_data_reg_arr(2);
+				
+				screen_in_reg <= screen_out_reg_arr(2);
+			elsif screen_in_reg = "011" then -- read screen
+				lcd_w_enable_reg <= lcd_w_enable_reg_arr(3);
+				lcd_data_out_reg <= lcd_data_out_reg_arr(3);
+				lcd_addr_reg <= lcd_addr_reg_arr(3);
+				lcd_data_reg <= lcd_data_reg_arr(3);
+				
+				seg_w_enable_reg <= seg_w_enable_reg_arr(3);
+				seg_data_out_reg <= seg_data_out_reg_arr(3);
+				seg_addr_reg <= seg_addr_reg_arr(3);
+				seg_data_reg <= seg_data_reg_arr(3);
+				
+				screen_in_reg <= screen_out_reg_arr(3);
+			elsif screen_in_reg = "100" then -- write screen
+				lcd_w_enable_reg <= lcd_w_enable_reg_arr(4);
+				lcd_data_out_reg <= lcd_data_out_reg_arr(4);
+				lcd_addr_reg <= lcd_addr_reg_arr(4);
+				lcd_data_reg <= lcd_data_reg_arr(4);
+				
+				seg_w_enable_reg <= seg_w_enable_reg_arr(4);
+				seg_data_out_reg <= seg_data_out_reg_arr(4);
+				seg_addr_reg <= seg_addr_reg_arr(4);
+				seg_data_reg <= seg_data_reg_arr(4);
+				
+				screen_in_reg <= screen_out_reg_arr(4);
+			end if;
 		end if;
 	end process;
 end Behavioral;
