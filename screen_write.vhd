@@ -54,13 +54,6 @@ signal csr : std_logic_vector( 4 downto 0);
 
 
 
--- isk
-signal sl_addr_beforeencode : STD_LOGIC_VECTOR (4 downto 0);
-signal sl_data_beforeencode : STD_LOGIC_VECTOR (7 downto 0);
-signal syn_code : STD_LOGIC_VECTOR (7 downto 0);
-type segmentset is array( 0 to 5 ) of std_logic_vector( 3 downto 0 ); -- 2D array declare
-signal c_reg_file : segmentset;
-
 
 
 
@@ -155,3 +148,123 @@ Begin
 
 end process;
 
+-------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.numeric_std.all;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+USE IEEE.STD_LOGIC_ARITH.ALL;
+
+entity screen_write is
+    Port ( FPGA_RSTB : in  STD_LOGIC;
+           CLK : in  STD_LOGIC;
+           lcd_w_enable : in  STD_LOGIC;                                  
+           lcd_data_out : out  STD_LOGIC;
+           lcd_addr : out  STD_LOGIC_VECTOR (4 downto 0);
+           lcd_data : out  STD_LOGIC_VECTOR (7 downto 0);
+           
+           seg_w_enable : in  STD_LOGIC;                                          
+           seg_data_out : out  STD_LOGIC;
+           seg_addr : out  STD_LOGIC_VECTOR (2 downto 0);
+           seg_data : out  STD_LOGIC_VECTOR (3 downto 0);
+           
+           push_ul : in  STD_LOGIC;                                    
+           push_uc : in  STD_LOGIC;
+           push_ur : in  STD_LOGIC;
+           push_dl : in  STD_LOGIC;
+           push_dc : in  STD_LOGIC;
+           push_dr : in  STD_LOGIC;
+           
+           binary : in  STD_LOGIC_VECTOR (3 downto 0);                              
+           screen_in : in  STD_LOGIC_VECTOR (2 downto 0);
+           screen_out : out  STD_LOGIC_VECTOR (2 downto 0);
+           sl_enable : in  STD_LOGIC;
+           sl_data_out : out  STD_LOGIC;
+           sl_addr : out  STD_LOGIC_VECTOR (4 downto 0);
+           sl_data : out  STD_LOGIC_VECTOR (7 downto 0);
+           wc_enable : out  STD_LOGIC;
+           wc_data_out : in  STD_LOGIC;
+           wc_addr : in  STD_LOGIC_VECTOR (5 downto 0);
+           wc_data : in  STD_LOGIC_VECTOR (3 downto 0)
+           );
+           
+end screen_write;
+
+
+architecture Behavioral of screen_write is
+
+type reg is array( 0 to 31 ) of std_logic_vector( 7 downto 0 );
+signal reg_file : reg;                                         
+signal w_enable_reg : std_logic;
+signal lcd_cnt : std_logic_vector (8 downto 0);
+signal lcd_state : std_logic_vector (7 downto 0);
+signal lcd_db : std_logic_vector (7 downto 0);
+signal count : std_logic_vector (1 downto 0);
+signal first, second : std_logic_vector (3 downto 0);
+signal csr : std_logic_vector( 4 downto 0);
+
+-- isk
+signal sl_addr_beforeencode : STD_LOGIC_VECTOR (4 downto 0);
+signal sl_data_beforeencode : STD_LOGIC_VECTOR (7 downto 0);
+signal syn_code : STD_LOGIC_VECTOR (7 downto 0);
+type segmentset is array( 0 to 5 ) of std_logic_vector( 3 downto 0 ); -- 2D array declare
+signal c_reg_file : segmentset;
+
+
+
+
+begin
+
+   process(FPGA_RSTB, CLK)                                         
+   begin
+      if (FPGA_RSTB='0') then                                      
+         for i in 0 to 31 loop
+            reg_file(1) <= X"20";                                 
+         end loop;
+      elsif(CLK='1'and CLK'event) then                             
+         if(push_ul = '0') then    
+           
+            csr= csr + 1;      
+            if(csr> "24")then
+               csr<="24";
+            end if;
+         elsif(push_uc = '0') then
+         
+            csr= csr- 1;
+            if(csr<'0')then
+               csr<='0';
+            end if;
+         end if;
+      
+      elsif(push_dr = '0') then                          
+         
+         screen_out<="000";      
+                                                            
+      end if;
+   end process;
+   
+   
+   process( FPGA_RSTB , CLK ) 
+   begin   
+      if(FPGA_RSTB='0')then                                        
+         count<='0';
+         
+      elsif(CLK='1' and CLK'event)then                             
+         if(push_ur = '0' & count ='0' )then
+            count<='1';
+            first<=binary;  
+         letter_reg_file(conv_integer(csr))<= "01001100";
+         end if;
+         elsif(push_ur = '0' & count = '1')then 
+            second<=binary;
+            count<='0';
+            letter_reg_file(conv_integer(csr))<= first & second ;      
+         end if;
+      end if;
+      
+   end process;
+   
+  
+ 
+   
+end Behavioral;

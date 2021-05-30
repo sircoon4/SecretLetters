@@ -37,11 +37,35 @@ architecture Behavioral of screen_read is
 
 signal r1_data_decode : STD_LOGIC_VECTOR (7 downto 0);
 signal syn_code : STD_LOGIC_VECTOR (7 downto 0);
-type segmentset is array( 0 to 5 ) of std_logic_vector( 3 downto 0 ); -- 2D array declare
-signal c_reg_file : segmentset;
+type seg_reg is array( 0 to 5 ) of std_logic_vector( 3 downto 0 ); -- 2D array declare
+signal c_reg_file : seg_reg;
 type reg is array( 0 to 31 ) of std_logic_vector( 7 downto 0 );	-- 32(16*2)개의 LCD display에 각각 data 형식 정의
 signal reg_file : reg;
 signal cnt : std_logic_vector(4 downto 0);
+
+-- 민지가 추가한 시그널
+type seg_reg is array(0 to 5) of std_logic_vector (3 downto 0);
+signal seg_reg_file: seg_reg;
+signal c_reg_file: seg_reg;
+
+
+	if (push_dl='0') then
+		for i in 0 to 5 loop
+			seg_reg_file(i)<="0000";
+		end loop;
+	else
+		seg_reg_file(0)<=c_reg_file(0);
+		seg_reg_file(1)<=c_reg_file(1);
+		seg_reg_file(2)<=c_reg_file(2);
+		seg_reg_file(3)<=c_reg_file(3);
+		seg_reg_file(4)<=c_reg_file(4);
+		seg_reg_file(5)<=c_reg_file(5);
+		
+	end if;
+
+
+
+
 
 begin
 -- enable과 data_out에 대해 적절히 이해하고 쓴건가...
@@ -158,26 +182,35 @@ end process;
           
 
 --- 세그먼트에 이렇게 보내줘도 되는건가;; 어차피 난 받은거 그대로 보내주는건데,,ㅎ
---- 민지님 여기여기!!!!!!!!!!!!!!!!!!!!!!!!!(시작)
-
-seg_data <= rc_data;
-rc_enable <= '1';
-process( rc_addr )
-begin
-	case rc_addr is
-		when "000001" => seg_addr <= "000";
-		when "000010" => seg_addr <= "001";
-		when "000100" => seg_addr <= "010";
-		when "001000" => seg_addr <= "011";
-		when "010000" => seg_addr <= "100";
-		when "100000" => seg_addr <= "101";
-		when others => null;
-	end case;
+process(push_dl,CLK) -- 클락 넣어야 되는거 아닌가??
+Begin
+	if (push_dl='0') then
+		for i in 0 to 5 loop
+			seg_reg_file(i) <= "0000";
+		end loop;
+	else
+		seg_reg_file(0)<=c_reg_file(0);
+		seg_reg_file(1)<=c_reg_file(1);
+		seg_reg_file(2)<=c_reg_file(2);
+		seg_reg_file(3)<=c_reg_file(3);
+		seg_reg_file(4)<=c_reg_file(4);
+		seg_reg_file(5)<=c_reg_file(5);
+		
+	end if;
 end process;
 
---- 민지님 여기여기!!!!!!!!!!!!!!!!!!!!!!!!!(끝)
 
-
+process(FPGA_RSTB, CLK)--FPGA_RSTB, CLK에 대한 process
+	Begin
+		if FPGA_RSTB = '0' then--FPGA_RSTB가 0이면 리셋
+			seg_data <= "0000";--blank이다
+		elsif CLK'event and CLK='1' then--clk이 rising edge일 때 
+			if seg_w_enable ='1' and seg_data_out ='1' then--w_enable_reg, data_out이 1이면
+				seg_addr <=	seg_reg_file~~;
+				seg_data(conv_integer(seg_addr)) <= seg_reg_file~~;--reg_file에 data를 넣는다
+			end if;
+		end if;
+end process;
 
 
 
@@ -193,6 +226,7 @@ begin
 		end if;
 	end if;
 end process;
+
 
 
 end Behavioral;
