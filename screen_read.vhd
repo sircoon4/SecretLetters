@@ -49,23 +49,6 @@ signal seg_reg_file: seg_reg;
 signal c_reg_file: seg_reg;
 
 
-	if (push_dl='0') then
-		for i in 0 to 5 loop
-			seg_reg_file(i)<="0000";
-		end loop;
-	else
-		seg_reg_file(0)<=c_reg_file(0);
-		seg_reg_file(1)<=c_reg_file(1);
-		seg_reg_file(2)<=c_reg_file(2);
-		seg_reg_file(3)<=c_reg_file(3);
-		seg_reg_file(4)<=c_reg_file(4);
-		seg_reg_file(5)<=c_reg_file(5);
-		
-	end if;
-
-
-
-
 
 begin
 -- enable과 data_out에 대해 적절히 이해하고 쓴건가...
@@ -181,7 +164,7 @@ end process;
 
           
 
---- 세그먼트에 이렇게 보내줘도 되는건가;; 어차피 난 받은거 그대로 보내주는건데,,ㅎ
+--- 민지(동일한게 스크린 라이트에도 있고 이건 고쳐야함)
 process(push_dl,CLK) -- 클락 넣어야 되는거 아닌가??
 Begin
 	if (push_dl='0') then
