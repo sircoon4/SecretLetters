@@ -33,10 +33,14 @@ architecture Behavioral of screen_code_read is
 
 	type seg is array(0 to 5) of std_logic_vector(3 downto 0);
 	type reg is array(0 to 31) of std_logic_vector(7 downto 0);
+	type rc is array(0 to 5) of std_logic_vector(3 downto 0);
 	signal seg_file : seg;
 	signal reg_file : reg;
+	signal rc_file : rc;
 	signal cnt_seg : std_logic_vector(2 downto 0);
 	signal cnt_reg : std_logic_vector(4 downto 0);
+	signal cnt_rc : std_logic_vector(2 downto 0);
+	
 
 begin
 	-- test
@@ -146,6 +150,27 @@ begin
 		end if;
 	end process;
 
+
+	process(FPGA_RSTB, CLK)											-- read screen으로 보내는 데이터
+		begin
+			if FPGA_RSTB = '0' then
+				cnt_rc <= (others => '0');
+				rc_data_out <= '0';
+			elsif CLK = '1' and CLK'event then
+				if rc_enable = '1' then
+					rc_data <= rc_file(conv_integer(cnt_rc));
+					rc_addr <= cnt_rc;
+					rc_data_out <= '1';
+					if cnt_rc = "101" then
+						cnt_rc <= (others => '0');
+					else
+						cnt_rc <= cnt_rc + 1;
+					end if;
+				else
+					rc_data_out <= '0';
+				end if;
+			end if;
+		end process;
 	
 end Behavioral;
 
