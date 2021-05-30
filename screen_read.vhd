@@ -47,6 +47,7 @@ signal cnt : std_logic_vector(4 downto 0);
 type seg_reg is array(0 to 5) of std_logic_vector (3 downto 0);
 signal seg_reg_file: seg_reg;
 signal c_reg_file: seg_reg;
+signal cnt_seg_reg: std_logic_vector (2 downto 0)
 
 
 
@@ -183,18 +184,30 @@ Begin
 end process;
 
 
-process(FPGA_RSTB, CLK)--FPGA_RSTB, CLK에 대한 process
-	Begin
-		if FPGA_RSTB = '0' then--FPGA_RSTB가 0이면 리셋
-			seg_data <= "0000";--blank이다
-		elsif CLK'event and CLK='1' then--clk이 rising edge일 때 
-			if seg_w_enable ='1' and seg_data_out ='1' then--w_enable_reg, data_out이 1이면
-				seg_addr <=	seg_reg_file~~;
-				seg_data(conv_integer(seg_addr)) <= seg_reg_file~~;--reg_file에 data를 넣는다
+
+	
+	process(FPGA_RSTB, CLK)											-- segment로 보내는 데이터
+	begin
+		if FPGA_RSTB = '0' then
+			cnt_seg_reg <= (others => '0');
+			seg_data_out <= '0';
+		elsif CLK = '1' and CLK'event then
+			if seg_w_enable = '1' then
+				seg_data <= seg_reg_file(conv_integer(cnt_seg_reg));
+				seg_addr <= cnt_seg_reg;
+				seg_data_out <= '1';
+				if cnt_seg_reg = "101" then								-- segment 6자리까지 갔을 때
+					cnt_seg_reg <= (others => '0');
+				else
+					cnt_seg_reg <= cnt_seg_reg + 1;
+				end if;
+			else
+				seg_data_out <= '0';
 			end if;
 		end if;
-end process;
+	end process;
 
+-----------------------------------------------------------------
 
 
 --- 오른쪽아래버튼이 백인데 이거 누르면 메인스크린으로 감. 근데 사실 리셋눌러도 메인으로 감ㅋㅎ
