@@ -35,10 +35,6 @@ end screen_read;
 
 architecture Behavioral of screen_read is
 
-<<<<<<< HEAD
-	signal test : std_logic;
-	
-=======
 signal r1_data_decode : STD_LOGIC_VECTOR (7 downto 0);
 signal syn_code : STD_LOGIC_VECTOR (7 downto 0);
 type segmentset is array( 0 to 5 ) of std_logic_vector( 3 downto 0 ); -- 2D array declare
@@ -48,10 +44,7 @@ type reg is array( 0 to 31 ) of std_logic_vector( 7 downto 0 );	-- 32(16*2)개의 
 signal reg_file : reg;
 signal cnt : std_logic_vector(4 downto 0);
 
->>>>>>> 3cce7cecc682873a90df7ef06d2808c8fd80ffba
 begin
-	test <= '1';
-
 -- enable과 data_out에 대해 적절히 이해하고 쓴건가...
 
 
