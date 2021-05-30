@@ -64,6 +64,8 @@ architecture Behavioral of screen_main is
 	
 	signal letter_num : std_logic_vector(2 downto 0);
 begin
+	seg_reg_file(0) <= "1000";
+	
 	process(FPGA_RSTB, CLK)
 	begin
 		if FPGA_RSTB ='0' then
@@ -74,13 +76,13 @@ begin
 			letter_4_exist <= '0';
 			letter_5_exist <= '0';
 			
-			for i in 0 to 31 loop
-				lcd_reg_file(i) <= X"20"; -- initialize register_files
-			end loop;
+--			for i in 0 to 31 loop
+--				lcd_reg_file(i) <= X"20"; -- initialize register_files
+--			end loop;
 			
-			for i in 0 to 5 loop
-				seg_reg_file(i) <= X"0"; -- initialize register_files
-			end loop;
+--			for i in 0 to 5 loop
+--				seg_reg_file(i) <= X"0"; -- initialize register_files
+--			end loop;
 			
 			lcd_reg_file(0) <= x"31";
 			lcd_reg_file(1) <= x"DB";
@@ -152,19 +154,20 @@ begin
 			seg_cnt <= (others => '0');
 			seg_data_out <= '0';
 		elsif CLK='1' and CLK'event then
-			if seg_w_enable = '1' then
-				seg_data <= seg_reg_file(conv_integer (seg_cnt));
-				seg_addr <= seg_cnt;
-				seg_data_out <= '1';
-				
-				if seg_cnt= "110" then -- 3110
-					seg_cnt <= (others =>'0');
-				else
-					seg_cnt <= seg_cnt + 1;
-				end if;
+			seg_data <= seg_reg_file(conv_integer (seg_cnt));
+			seg_addr <= seg_cnt;
+			seg_data_out <= '1';
+			
+			if seg_cnt= "110" then -- 3110
+				seg_cnt <= (others =>'0');
 			else
-				seg_data_out <= '0'; -- do not write
+				seg_cnt <= seg_cnt + 1;
 			end if;
+--			if seg_w_enable = '1' then
+--				
+--			else
+--				seg_data_out <= '0'; -- do not write
+--			end if;
 		end if;
 	end process;
 	

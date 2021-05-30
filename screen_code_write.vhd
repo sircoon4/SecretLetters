@@ -31,8 +31,11 @@ end screen_code_write;
 --screen code write
 architecture Behavioral of screen_code_write is
 
+	signal test : std_logic;
+	
 begin
 
+	test <= '1';
 
 end Behavioral;
 

@@ -35,8 +35,10 @@ end screen_read;
 
 architecture Behavioral of screen_read is
 
+	signal test : std_logic;
+	
 begin
-
+	test <= '1';
 
 --skim º¹È£È­
 

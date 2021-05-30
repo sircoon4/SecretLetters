@@ -42,6 +42,13 @@ architecture Behavioral of display_module is
 	signal lcd_state : std_logic_vector (7 downto 0);
 	signal lcd_nstate : std_logic_vector (7 downto 0);
 	signal lcd_db : std_logic_vector (7 downto 0);
+	---------------------------------------------------------------------------- 추가
+	type seg_type is array(0 to 5) of std_logic_vector(3 downto 0);
+	signal seg_file : seg_type;
+	signal sel : std_logic_vector(2 downto 0);
+	signal segment : std_logic_vector(3 downto 0);
+	signal seg : std_logic_vector(7 downto 0);
+	----------------------------------------------------------------------------
 begin
 
 process(FPGA_RSTB,CLK,load_100k,cnt_100k) --Clock(100kHz, 10 us period) Generation
@@ -99,6 +106,20 @@ Begin
 	end if;
 end process;
 
+--------------------------------------------------------------------------------------------------
+process(FPGA_RSTB, CLK)
+Begin
+	if FPGA_RSTB = '0' then
+		for j in 0 to 5 loop
+			seg_file(j) <= "0000";
+		end loop;
+	elsif CLK'event and CLK = '1' then
+		if seg_data_out = '1' then
+			seg_file(conv_integer(seg_addr)) <= seg_data;
+		end if;
+	end if;
+end process;
+--------------------------------------------------------------------------------------------------
 process(FPGA_RSTB, lcd_state) -- lcd_state (X00~X26)
 Begin
 	if FPGA_RSTB='0' then
@@ -236,6 +257,74 @@ LCD_EN <= clk_50;
 --LCD_EN <= '0' when w_enable_reg='0' else clk_100;
 LCD_D <= lcd_db; -- LCD display data
 lcd_w_enable <= w_enable_reg;
+
+
+
+----------------------------------------------------------------- segment 추가
+	process(sel)
+	begin
+		case sel is
+			when "000" => DIGIT <= "000001";		-- segment의 마지막 자리
+				segment <= seg_file(5);					
+			when "001" => DIGIT <= "000010";
+				segment <= seg_file(4);
+			when "010" => DIGIT <= "000100";
+				segment <= seg_file(3);
+			when "011" => DIGIT <= "001000";
+				segment <= seg_file(2);
+			when "100" => DIGIT <= "010000";
+				segment <= seg_file(1);
+			when "101" => DIGIT <= "100000";		-- segment의 첫 번째 자리
+				segment <= seg_file(0);			-- 입력버튼을 한번 눌렀을 때의 값
+			when others => null;
+		end case;
+	end process;
+	
+	process(FPGA_RSTB, CLK)
+		variable seg_clk_cnt : integer range 0 to 200;
+	begin
+		if(FPGA_RSTB = '0') then
+			sel <= "000";
+			seg_clk_cnt := 0;
+		elsif(CLK'event and CLK = '1') then
+			if(seg_clk_cnt = 200) then
+				seg_clk_cnt := 0;
+				if(sel = "101") then
+					sel <= "000";
+				else
+					sel <= sel + 1;
+				end if;
+			else
+				seg_clk_cnt := seg_clk_cnt + 1;
+			end if;
+		end if;
+	end process;
+	
+	process(segment)
+	begin
+		case segment is
+			when "0000" => seg <= "00111111";
+			when "0001" => seg <= "00000110";
+			when "0010" => seg <= "01011011";
+			when "0011" => seg <= "01001111";
+			when "0100" => seg <= "01100110";
+			when "0101" => seg <= "01101101";
+			when "0110" => seg <= "01111101";
+			when "0111" => seg <= "00100111";
+			when "1000" => seg <= "01111111";
+			when "1001" => seg <= "01101111";
+			when others => null;
+		end case;
+	end process;
+	SEG_A <= seg(0);
+	SEG_B <= seg(1);
+	SEG_C <= seg(2);
+	SEG_D <= seg(3);
+	SEG_E <= seg(4);
+	SEG_F <= seg(5);
+	SEG_G <= seg(6);
+	SEG_DP <= seg(7);
+				
 
 end Behavioral;
 
