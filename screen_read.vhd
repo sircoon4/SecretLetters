@@ -35,6 +35,8 @@ end screen_read;
 
 architecture Behavioral of screen_read is
 
+
+
 signal r1_data_decode : STD_LOGIC_VECTOR (7 downto 0);
 signal syn_code : STD_LOGIC_VECTOR (7 downto 0);
 type seg_reg is array( 0 to 5 ) of std_logic_vector( 3 downto 0 ); -- 2D array declare
@@ -42,17 +44,14 @@ signal c_reg_file : seg_reg;
 type reg is array( 0 to 31 ) of std_logic_vector( 7 downto 0 );	-- 32(16*2)개의 LCD display에 각각 data 형식 정의
 signal reg_file : reg;
 signal cnt : std_logic_vector(4 downto 0);
-
--- 민지가 추가한 시그널
-type seg_reg is array(0 to 5) of std_logic_vector (3 downto 0);
 signal seg_reg_file: seg_reg;
-signal c_reg_file: seg_reg;
-signal cnt_seg_reg: std_logic_vector (2 downto 0)
+signal cnt_seg_reg: std_logic_vector (2 downto 0);
+
+
 
 
 
 begin
--- enable과 data_out에 대해 적절히 이해하고 쓴건가...
 
 
 r1_data_decode <= rl_data xor syn_code;
@@ -142,7 +141,7 @@ end process;
 
 process(FPGA_RSTB, CLK)
 Begin
-	if FPGA_RSTB ='0' then								-- FPGA_RSTB 버튼 동작 시,
+	if FPGA_RSTB = '0' then								-- FPGA_RSTB 버튼 동작 시,
 		cnt <= (others => '0');								-- cnt는 "00000"
 		lcd_data_out <= '0';										-- data_out는 '0'
 	elsif CLK='1' and CLK'event then					-- CLK가 rising edge 마다,
@@ -163,10 +162,9 @@ Begin
 end process;
 
 
-          
+---------------------------------------------------------------------------------------------
 
---- 민지(동일한게 스크린 라이트에도 있고 이건 고쳐야함)
-process(push_dl,CLK) -- 클락 넣어야 되는거 아닌가??
+process(push_dl,CLK)
 Begin
 	if (push_dl='0') then
 		for i in 0 to 5 loop
@@ -210,7 +208,7 @@ end process;
 -----------------------------------------------------------------
 
 
---- 오른쪽아래버튼이 백인데 이거 누르면 메인스크린으로 감. 근데 사실 리셋눌러도 메인으로 감ㅋㅎ
+--- 오른쪽아래버튼이 백인데 이거 누르면 메인스크린으로 감. 근데 사실 리셋눌러도 메인으로 감
 
 process(FPGA_RSTB, CLK)
 begin
