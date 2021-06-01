@@ -1,0 +1,29 @@
+Command line:
+   vt_secret_letters_isim_beh.exe
+     -simmode  gui
+     -simrunnum  0
+     -socket  49782
+
+Tue Jun 01 16:04:12 2021
+
+
+ Elaboration Time: 0.046875 sec
+
+ Current Memory Usage: 5157.83 Meg
+
+ Total Signals          : 267
+ Total Nets             : 2522
+ Total Signal Drivers   : 116
+ Total Blocks           : 12
+ Total Primitive Blocks : 10
+ Total Processes        : 36
+ Total Traceable Variables  : 16
+ Total Scalar Nets and Variables : 3024
+Total Line Count : 319
+
+ Total Simulation Time: 25.8906 sec
+
+ Current Memory Usage: 5000.55 Meg
+
+Tue Jun 01 16:05:35 2021
+
