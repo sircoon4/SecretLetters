@@ -67,6 +67,7 @@ begin
 	process(FPGA_RSTB, CLK)
 	begin
 		seg_reg_file(0) <= "0001";
+		
 		if FPGA_RSTB ='0' then
 			screen_out <= "000";
 			
@@ -97,6 +98,10 @@ begin
 			lcd_reg_file(13) <= x"DB";
 			
 		elsif CLK='1' and CLK'event then
+			if screen_in /= "000" then
+				screen_out <= "000";
+			end if;
+			
 			if(letter_1_exist = '1') then
 				lcd_reg_file(1) <= x"FF";
 			elsif(letter_2_exist = '1') then
@@ -109,20 +114,16 @@ begin
 				lcd_reg_file(13) <= x"FF";
 			end if;
 			
-			if push_ul = '0' then
-				lcd_reg_file(16) <= x"30";
-			elsif push_uc = '0' then
-				lcd_reg_file(17) <= x"31";
-			elsif push_ur = '0' then
-				lcd_reg_file(18) <= x"32";
-			elsif push_dl = '0' then -- Read
-				letter_num <= binary(2 downto 0);
-				screen_out <= "001";
-			elsif push_dc = '0' then -- Write
-				letter_num <= binary(2 downto 0);
-				screen_out <= "010";
---			elsif push_dr = '0' then
---				screen_out <= "011";
+			if screen_in = "000" then
+				if push_uc = '0' then -- Read
+					letter_num <= binary(2 downto 0);
+					screen_out <= "001";
+				elsif push_ur = '0' then -- Write
+					letter_num <= binary(2 downto 0);
+					screen_out <= "010";
+	--			elsif push_dr = '0' then
+	--				screen_out <= "011";
+				end if;
 			end if;
 		end if;
 	end process;
@@ -178,7 +179,7 @@ begin
 			rl_cnt <= (others => '0');
 			rl_data_out <= '0';
 		elsif CLK='1' and CLK'event then
-			if rl_enable = '1' then
+			if screen_in = "011" then
 				case letter_num is
 					when "000" => rl_data <= letter_1(conv_integer(rl_cnt));
 					when "001" => rl_data <= letter_2(conv_integer(rl_cnt));
@@ -195,14 +196,10 @@ begin
 				else
 					rl_cnt <= rl_cnt + 1;
 				end if;
-			else
-				rl_data_out <= '0'; -- do not write
 			end if;
 		end if;
 	end process;
 	
-sl_enable_reg <= '1' when (screen_in = "100" or screen_in = "000") else '0'; -- save letter when write screen
-
 	process(FPGA_RSTB, CLK)
 	Begin
 		if FPGA_RSTB ='0' then
@@ -225,8 +222,16 @@ sl_enable_reg <= '1' when (screen_in = "100" or screen_in = "000") else '0'; -- 
 			for i in 0 to 31 loop
 				letter_5(i) <= X"20"; -- initialize register_files
 			end loop;
+			
+			sl_enable_reg <= '0';
 		elsif CLK'event and CLK='1' then
-			if sl_enable_reg ='1' and sl_data_out ='1' then
+			if screen_in = "100" then
+				sl_enable_reg <= '1';
+			else
+				sl_enable_reg <= '0';
+			end if;
+
+			if sl_enable_reg = '1' and sl_data_out ='1' then
 				case letter_num is
 					when "000" => letter_1(conv_integer(sl_addr)) <= sl_data;
 					when "001" => letter_2(conv_integer(sl_addr)) <= sl_data;

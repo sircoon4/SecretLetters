@@ -36,25 +36,29 @@ end screen_read;
 architecture Behavioral of screen_read is
 
 
-
-signal r1_data_decode : STD_LOGIC_VECTOR (7 downto 0);
 signal syn_code : STD_LOGIC_VECTOR (7 downto 0);
+
 type seg_reg is array( 0 to 5 ) of std_logic_vector( 3 downto 0 ); -- 2D array declare
 signal c_reg_file : seg_reg;
+
 type reg is array( 0 to 31 ) of std_logic_vector( 7 downto 0 );	-- 32(16*2)개의 LCD display에 각각 data 형식 정의
-signal reg_file : reg;
+signal decode_letter : reg;
+-- signal before_letter : reg;
+
+signal dl_cnt : std_logic_vector(4 downto 0);
+
 signal cnt : std_logic_vector(4 downto 0);
 signal seg_reg_file: seg_reg;
 signal cnt_seg_reg: std_logic_vector (2 downto 0);
 
 
-
+signal rl_enable_reg: std_logic;
 
 
 begin
 
 
-r1_data_decode <= rl_data xor syn_code;
+--r1_data_decode <= rl_data xor syn_code;
 
 process(FPGA_RSTB, CLK)
 begin
@@ -87,57 +91,80 @@ Begin
 	end if;
 end process;
 
+process(FPGA_RSTB, CLK)
+Begin
+	if FPGA_RSTB ='0' then
+		rl_enable_reg <= '0';
+--		for i in 0 to 31 loop
+--			before_letter(i) <= X"20";
+--		end loop;
+		
+		for i in 0 to 31 loop
+			decode_letter(i) <= X"20";
+		end loop;
+	elsif CLK'event and CLK='1' then
+		if screen_in = "011" then
+			rl_enable_reg <= '1';
+		else
+			rl_enable_reg <= '0';
+		end if;
+
+		if rl_enable_reg = '1' and rl_data_out ='1' then
+			decode_letter(conv_integer(rl_addr)) <= rl_data xor syn_code;
+			-- decode_letter(conv_integer(rl_addr)) <= before_letter(conv_integer(rl_addr)) xor syn_code;
+		end if;
+	end if;
+end process;
+rl_enable <= rl_enable_reg;
+
 
 ---------------------------------------------- 이제부터 읽자
 -- 해독된 r1_data_decode를 lcd로 보내야됨.
 
-
-process(FPGA_RSTB, CLK, rc_addr)
-begin
-	if FPGA_RSTB ='0' then								-- FPGA_RSTB 버튼 동작 시,
-		for i in 0 to 31 loop								-- 32(16*2)개의 LCD display에
-			reg_file(i) <= X"20";							-- initialize reg_file with 'space'
-		end loop;
-	elsif CLK='1' and CLK'event then					-- CLK가 rising edge 마다,
-		case rl_addr is
-			when "00000" => reg_file(0) <= r1_data_decode;
-			when "00001" => reg_file(1) <= r1_data_decode;
-			when "00010" => reg_file(2) <= r1_data_decode;
-			when "00011" => reg_file(3) <= r1_data_decode;
-			when "00100" => reg_file(4) <= r1_data_decode;
-			when "00101" => reg_file(5) <= r1_data_decode;
-			when "00110" => reg_file(6) <= r1_data_decode;
-			when "00111" => reg_file(7) <= r1_data_decode;
-			when "01000" => reg_file(8) <= r1_data_decode;
-			when "01001" => reg_file(9) <= r1_data_decode;
-			when "01010" => reg_file(10) <= r1_data_decode;
-			when "01011" => reg_file(11) <= r1_data_decode;
-			when "01100" => reg_file(12) <= r1_data_decode;
-			when "01101" => reg_file(13) <= r1_data_decode;
-			when "01110" => reg_file(14) <= r1_data_decode;
-			when "01111" => reg_file(15) <= r1_data_decode;
-			when "10000" => reg_file(16) <= r1_data_decode;
-			when "10001" => reg_file(17) <= r1_data_decode;
-			when "10010" => reg_file(18) <= r1_data_decode;
-			when "10011" => reg_file(19) <= r1_data_decode;
-			when "10100" => reg_file(20) <= r1_data_decode;
-			when "10101" => reg_file(21) <= r1_data_decode;
-			when "10110" => reg_file(22) <= r1_data_decode;
-			when "10111" => reg_file(23) <= r1_data_decode;
-			when "11000" => reg_file(24) <= r1_data_decode;
-			when "11001" => reg_file(25) <= r1_data_decode;
-			when "11010" => reg_file(26) <= r1_data_decode;
-			when "11011" => reg_file(27) <= r1_data_decode;
-			when "11100" => reg_file(28) <= r1_data_decode;
-			when "11101" => reg_file(29) <= r1_data_decode;
-			when "11110" => reg_file(30) <= r1_data_decode;
-			when others => reg_file(31) <= r1_data_decode;
-		end case;
-	end if;
-end process;
-
-
-
+--
+--process(FPGA_RSTB, CLK, rc_addr)
+--begin
+--	if FPGA_RSTB ='0' then								-- FPGA_RSTB 버튼 동작 시,
+--		for i in 0 to 31 loop								-- 32(16*2)개의 LCD display에
+--			reg_file(i) <= X"20";							-- initialize reg_file with 'space'
+--		end loop;
+--	elsif CLK='1' and CLK'event then					-- CLK가 rising edge 마다,
+--		case rl_addr is
+--			when "00000" => reg_file(0) <= r1_data_decode;
+--			when "00001" => reg_file(1) <= r1_data_decode;
+--			when "00010" => reg_file(2) <= r1_data_decode;
+--			when "00011" => reg_file(3) <= r1_data_decode;
+--			when "00100" => reg_file(4) <= r1_data_decode;
+--			when "00101" => reg_file(5) <= r1_data_decode;
+--			when "00110" => reg_file(6) <= r1_data_decode;
+--			when "00111" => reg_file(7) <= r1_data_decode;
+--			when "01000" => reg_file(8) <= r1_data_decode;
+--			when "01001" => reg_file(9) <= r1_data_decode;
+--			when "01010" => reg_file(10) <= r1_data_decode;
+--			when "01011" => reg_file(11) <= r1_data_decode;
+--			when "01100" => reg_file(12) <= r1_data_decode;
+--			when "01101" => reg_file(13) <= r1_data_decode;
+--			when "01110" => reg_file(14) <= r1_data_decode;
+--			when "01111" => reg_file(15) <= r1_data_decode;
+--			when "10000" => reg_file(16) <= r1_data_decode;
+--			when "10001" => reg_file(17) <= r1_data_decode;
+--			when "10010" => reg_file(18) <= r1_data_decode;
+--			when "10011" => reg_file(19) <= r1_data_decode;
+--			when "10100" => reg_file(20) <= r1_data_decode;
+--			when "10101" => reg_file(21) <= r1_data_decode;
+--			when "10110" => reg_file(22) <= r1_data_decode;
+--			when "10111" => reg_file(23) <= r1_data_decode;
+--			when "11000" => reg_file(24) <= r1_data_decode;
+--			when "11001" => reg_file(25) <= r1_data_decode;
+--			when "11010" => reg_file(26) <= r1_data_decode;
+--			when "11011" => reg_file(27) <= r1_data_decode;
+--			when "11100" => reg_file(28) <= r1_data_decode;
+--			when "11101" => reg_file(29) <= r1_data_decode;
+--			when "11110" => reg_file(30) <= r1_data_decode;
+--			when others => reg_file(31) <= r1_data_decode;
+--		end case;
+--	end if;
+--end process;
 
 process(FPGA_RSTB, CLK)
 Begin
@@ -146,7 +173,7 @@ Begin
 		lcd_data_out <= '0';										-- data_out는 '0'
 	elsif CLK='1' and CLK'event then					-- CLK가 rising edge 마다,
 		if lcd_w_enable = '1' then								-- w_enable이'1'(write)이면,
-			lcd_data <= reg_file (conv_integer (cnt));		-- data에 regfile의 cnt번째 array를 할당
+			lcd_data <= decode_letter(conv_integer (cnt));		-- data에 regfile의 cnt번째 array를 할당
 			lcd_addr <= cnt;										-- addr에 cnt 값 할당
 			lcd_data_out <= '1';									-- data_out는 '1'(write)
 			
@@ -166,44 +193,38 @@ end process;
 
 process(push_dl,CLK)
 Begin
-	if (push_dl='0') then
-		for i in 0 to 5 loop
-			seg_reg_file(i) <= "0000";
-		end loop;
-	else
-		seg_reg_file(0)<=c_reg_file(0);
-		seg_reg_file(1)<=c_reg_file(1);
-		seg_reg_file(2)<=c_reg_file(2);
-		seg_reg_file(3)<=c_reg_file(3);
-		seg_reg_file(4)<=c_reg_file(4);
-		seg_reg_file(5)<=c_reg_file(5);
-		
+	if screen_in = "011" then
+		if (push_dl='0') then
+			for i in 0 to 5 loop
+				seg_reg_file(i) <= "0000";
+			end loop;
+		else
+			seg_reg_file(0)<=c_reg_file(0);
+			seg_reg_file(1)<=c_reg_file(1);
+			seg_reg_file(2)<=c_reg_file(2);
+			seg_reg_file(3)<=c_reg_file(3);
+			seg_reg_file(4)<=c_reg_file(4);
+			seg_reg_file(5)<=c_reg_file(5);
+		end if;
 	end if;
 end process;
-
-
-
 	
-	process(FPGA_RSTB, CLK)											-- segment로 보내는 데이터
-	begin
-		if FPGA_RSTB = '0' then
+process(FPGA_RSTB, CLK)
+Begin
+	if FPGA_RSTB ='0' then
+		cnt_seg_reg <= (others => '0');
+		seg_data_out <= '0';
+	elsif CLK='1' and CLK'event then
+		seg_data <= seg_reg_file(conv_integer(cnt_seg_reg));
+			seg_addr <= cnt_seg_reg;
+			seg_data_out <= '1';
+		if cnt_seg_reg = "101" then								-- segment 6자리까지 갔을 때
 			cnt_seg_reg <= (others => '0');
-			seg_data_out <= '0';
-		elsif CLK = '1' and CLK'event then
-			if seg_w_enable = '1' then
-				seg_data <= seg_reg_file(conv_integer(cnt_seg_reg));
-				seg_addr <= cnt_seg_reg;
-				seg_data_out <= '1';
-				if cnt_seg_reg = "101" then								-- segment 6자리까지 갔을 때
-					cnt_seg_reg <= (others => '0');
-				else
-					cnt_seg_reg <= cnt_seg_reg + 1;
-				end if;
-			else
-				seg_data_out <= '0';
-			end if;
+		else
+			cnt_seg_reg <= cnt_seg_reg + 1;
 		end if;
-	end process;
+	end if;
+end process;
 
 -----------------------------------------------------------------
 
@@ -214,9 +235,18 @@ process(FPGA_RSTB, CLK)
 begin
 	if FPGA_RSTB ='0' then
 		screen_out <= "011";
+		rl_enable <= '0';
 	elsif CLK='1' and CLK'event then
-		if push_dr = '0' then
-			screen_out <= "000";
+		if screen_in /= "011" then
+			screen_out <= "011";
+			rl_enable <= '0';
+		end if;
+		
+		if screen_in = "011" then
+			rl_enable <= '1';
+			if push_dr = '0' then
+				screen_out <= "000";
+			end if;
 		end if;
 	end if;
 end process;

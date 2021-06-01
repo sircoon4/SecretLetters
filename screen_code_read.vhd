@@ -90,6 +90,7 @@ begin
 	process(FPGA_RSTB, clk_50)
 	begin
 		--seg_file(0) <= "0010";
+		
 		if FPGA_RSTB = '0' then
 			screen_out <= "001";
 			-- cursor := "0000";
@@ -99,6 +100,10 @@ begin
 			
 			for i in 0 to 5 loop
 				seg_file(i) <= X"0";
+			end loop;
+			
+			for i in 0 to 5 loop
+				rc_file(i) <= X"0";
 			end loop;
 			
 			for i in 0 to 31 loop
@@ -117,16 +122,23 @@ begin
 			reg_file(9) <= X"39";
 			
 		elsif rising_edge(clk_50) then		-- 0~9 display
-			if(push_ul = '1' and bc_clicked = '0') then      --assuming active-high
-				enter <= enter + 1;
-				seg_file(conv_integer(enter)) <= binary;
+			if screen_in /= "001" then
+				screen_out <= "001";
 			end if;
-			bc_clicked <= push_ul;
 			
-			if push_dc = '0' then
-				screen_out <= "011";
-			elsif push_dr = '0' then
-				screen_out <= "000";
+			if screen_in = "001" then
+				if(push_ul = '1' and bc_clicked = '0') then      --assuming active-high
+					seg_file(conv_integer(enter)) <= binary;
+					rc_file(conv_integer(enter)) <= binary;
+					enter <= enter + 1;
+				end if;
+				bc_clicked <= push_ul;
+				
+				if push_dc = '0' then
+					screen_out <= "011";
+				elsif push_dr = '0' then
+					screen_out <= "000";
+				end if;
 			end if;
 		end if;
 		

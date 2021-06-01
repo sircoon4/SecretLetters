@@ -1,6 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use ieee.numeric_std.all;
+--use ieee.numeric_std.all;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 USE IEEE.STD_LOGIC_ARITH.ALL;
 
@@ -43,7 +43,8 @@ end screen_write;
 architecture Behavioral of screen_write is
 
 type reg is array( 0 to 31 ) of std_logic_vector( 7 downto 0 );
-signal letter_reg_file : reg;                                         
+signal letter_reg_file : reg; 
+signal encode_letter : reg;                                       
 
 type seg_reg is array( 0 to 5 ) of std_logic_vector( 3 downto 0 ); -- 2D array declare
 signal c_reg_file: seg_reg;
@@ -75,10 +76,7 @@ signal hr10_cnt, hr01_cnt: std_logic_vector(3 downto 0);--시간을 카운트하는 내부
 signal min10_cnt, min01_cnt: std_logic_vector(3 downto 0);--분을 카운트하는 내부신호
 signal sec10_cnt, sec01_cnt: std_logic_vector(3 downto 0);--초를 카운트하는 내부신호
 
-
-
-
-
+signal sl_cnt : std_logic_vector(4 downto 0);
 
 begin
 	process(FPGA_RSTB,CLK)--rst_n과 clk에 대한 프로세스
@@ -155,100 +153,137 @@ begin
 
    process(FPGA_RSTB, CLK)                                         
    begin
-      if (FPGA_RSTB='0') then                                      
+      if (FPGA_RSTB='0') then
+			csr <= "00000";
          screen_out <= "100";
-      elsif(CLK='1'and CLK'event) then                             
-         if(push_uc = '0') then    
-           
-            csr<= csr + 1;      
-            if(csr= "11001")then
-               csr<="11001";
-            end if;
-         elsif(push_ul = '0') then
-         
-            csr<= csr - 1;
-            if(csr = "00000")then
-               csr <= "00000";
-            end if;
-			elsif(push_dr = '0') then
-				screen_out<="000";                                  
+      elsif(CLK='1'and CLK'event) then      
+			if screen_in /= "100" then
+				screen_out <= "100";
+			end if;
+			
+			if screen_in = "100" then
+				if(push_uc = '0') then
+					csr<= csr + 1;      
+					if(csr= "11001")then
+						csr<="11001";
+					end if;
+				elsif(push_ul = '0') then
+					csr<= csr - 1;
+					if(csr = "00000")then
+						csr <= "00000";
+					end if;
+				elsif(push_dr = '0') then
+					screen_out<="000";                                  
+				end if;
 			end if;
 		end if;
    end process;
    
 ---------------------------------------------값   
    PROCESS( FPGA_RSTB , CLK ) 
-   begin   
-      if(FPGA_RSTB='0')then                                        
+   begin
+      if(FPGA_RSTB='0')then
          count <= "00";
 			
 			for i in 0 to 31 loop
             letter_reg_file(i) <= X"20";                                 
          end loop;
          
-      elsif(CLK = '1' and CLK'event)then                             
-         if(push_ur = '0' and count ="00" )then
-            count <= "01";
-            first<=binary;  
-				
-         end if;
-         
-         if(push_ur = '0' and  count = "01")then 
-            second <= binary;
-            count <= "00";
-            letter_reg_file(conv_integer(csr)) <= first & second ;      
-         end if;
-			
-			if (push_dc='0') then
-				if hr10_cnt < "1010" then
-					letter_reg_file(26) <= hr10_cnt + X"30";--아스키코드와의 차이를 메꿈
-				else
-					letter_reg_file(26) <= hr10_cnt + X"37";--아스키코드와의 차이를 메꿈
+      elsif(CLK = '1' and CLK'event)then
+			if screen_in = "100" then
+				if(push_ur = '0' and count ="00" )then
+					count <= "01";
+					first<=binary;  
+					
 				end if;
 				
-				if hr01_cnt < "1010" then
-					letter_reg_file(27) <= hr01_cnt + X"30";--아스키코드와의 차이를 메꿈
-				else
-					letter_reg_file(27) <= hr01_cnt + X"37";--아스키코드와의 차이를 메꿈
-				end if;			
-				
-				if min10_cnt < "1010" then
-					letter_reg_file(28) <= min10_cnt + X"30";--아스키코드와의 차이를 메꿈
-				else
-					letter_reg_file(28) <= min10_cnt + X"37";--아스키코드와의 차이를 메꿈
+				if(push_ur = '0' and  count = "01")then 
+					second <= binary;
+					count <= "00";
+					letter_reg_file(conv_integer(csr)) <= first & second ;      
 				end if;
 				
-				if min01_cnt < "1010" then
-					letter_reg_file(29) <= min01_cnt + X"30";--아스키코드와의 차이를 메꿈
-				else
-					letter_reg_file(29) <= min01_cnt + X"37";--아스키코드와의 차이를 메꿈
-				end if;
+				if (push_dc='0') then
+					if hr10_cnt < "1010" then
+						letter_reg_file(26) <= hr10_cnt + X"30";--아스키코드와의 차이를 메꿈
+					else
+						letter_reg_file(26) <= hr10_cnt + X"37";--아스키코드와의 차이를 메꿈
+					end if;
+					
+					if hr01_cnt < "1010" then
+						letter_reg_file(27) <= hr01_cnt + X"30";--아스키코드와의 차이를 메꿈
+					else
+						letter_reg_file(27) <= hr01_cnt + X"37";--아스키코드와의 차이를 메꿈
+					end if;			
+					
+					if min10_cnt < "1010" then
+						letter_reg_file(28) <= min10_cnt + X"30";--아스키코드와의 차이를 메꿈
+					else
+						letter_reg_file(28) <= min10_cnt + X"37";--아스키코드와의 차이를 메꿈
+					end if;
+					
+					if min01_cnt < "1010" then
+						letter_reg_file(29) <= min01_cnt + X"30";--아스키코드와의 차이를 메꿈
+					else
+						letter_reg_file(29) <= min01_cnt + X"37";--아스키코드와의 차이를 메꿈
+					end if;
 
-				if sec10_cnt < "1010" then
-					letter_reg_file(30) <= sec10_cnt + X"30";--아스키코드와의 차이를 메꿈
-				else
-					letter_reg_file(30) <= sec10_cnt + X"37";--아스키코드와의 차이를 메꿈
+					if sec10_cnt < "1010" then
+						letter_reg_file(30) <= sec10_cnt + X"30";--아스키코드와의 차이를 메꿈
+					else
+						letter_reg_file(30) <= sec10_cnt + X"37";--아스키코드와의 차이를 메꿈
+					end if;
+					
+					if sec01_cnt < "1010" then
+						letter_reg_file(31) <= sec01_cnt + X"30";--아스키코드와의 차이를 메꿈
+					else
+						letter_reg_file(31) <= sec01_cnt + X"37";--아스키코드와의 차이를 메꿈
+					end if;					
 				end if;
-				
-				if sec01_cnt < "1010" then
-					letter_reg_file(31) <= sec01_cnt + X"30";--아스키코드와의 차이를 메꿈
-				else
-					letter_reg_file(31) <= sec01_cnt + X"37";--아스키코드와의 차이를 메꿈
-				end if;					
-			end if;	
+			end if;
       end if;
-		
    end process;
 	
 
 
-sl_addr <= csr;
-sl_data_beforeencode <= letter_reg_file(conv_integer(csr));
---커서 문제생기면 레그파일 노가다
+--sl_addr <= csr;
+--sl_data_beforeencode <= letter_reg_file(conv_integer(csr));
+----커서 문제생기면 레그파일 노가다
+--
+--sl_data <= sl_data_beforeencode xor syn_code; -- 암호화!!!
 
-sl_data <= sl_data_beforeencode xor syn_code; -- 암호화!!!
-
-
+	
+	process(FPGA_RSTB, CLK)
+	begin
+		if FPGA_RSTB = '0' then
+			for i in 0 to 31 loop
+				encode_letter(i) <= X"20";
+			end loop;
+		elsif CLK = '1' and CLK'event then
+			encode_letter(conv_integer(csr)) <= letter_reg_file(conv_integer(csr)) xor syn_code;
+		end if;
+	end process;
+	
+	process(FPGA_RSTB, CLK)
+	Begin
+		if FPGA_RSTB ='0' then
+			sl_cnt <= (others => '0');
+			sl_data_out <= '0';
+		elsif CLK='1' and CLK'event then
+			if sl_enable = '1' then
+				sl_data <= encode_letter(conv_integer(sl_cnt));
+				sl_addr <= sl_cnt;
+				sl_data_out <= '1';
+				if sl_cnt= X"1F" then -- 3110
+					sl_cnt <= (others =>'0');
+				else
+					sl_cnt <= sl_cnt + 1;
+				end if;
+			else
+				sl_data_out <= '0';
+			end if;
+		end if;
+	end process;
 	
 	process(FPGA_RSTB, CLK)
 	begin
@@ -257,7 +292,7 @@ sl_data <= sl_data_beforeencode xor syn_code; -- 암호화!!!
 			lcd_data_out <= '0';
 		elsif CLK = '1' and CLK'event then
 			if lcd_w_enable = '1' then				
-				lcd_data <= sl_data_beforeencode;
+				lcd_data <= letter_reg_file(conv_integer(csr));
 				lcd_addr <= csr;
 				lcd_data_out <= '1';
 				if cnt_lcd = "100000" then	
@@ -300,7 +335,9 @@ end process;
 process(FPGA_RSTB, CLK)-- 이게 진짜 시레그만드는거
 Begin
    if FPGA_RSTB ='0' then
-      c_reg_file <= (others => "0000");
+		for i in 0 to 5 loop
+			c_reg_file(0) <= X"0";
+		end loop;
    elsif CLK='1' and CLK'event then
       if wc_data_out = '1' then
          c_reg_file (conv_integer (wc_addr)) <= wc_data;
@@ -313,43 +350,39 @@ end process;
 -- 민지(동일한게 스크린 리드에도 있고 이건 수정해야됨.)
 process(push_dl,CLK) 
 Begin
-	if (push_dl='0') then
-		for i in 0 to 5 loop
-			seg_reg_file(i) <= "0000";
-		end loop;
-	else
-		seg_reg_file(0)<=c_reg_file(0);
-		seg_reg_file(1)<=c_reg_file(1);
-		seg_reg_file(2)<=c_reg_file(2);
-		seg_reg_file(3)<=c_reg_file(3);
-		seg_reg_file(4)<=c_reg_file(4);
-		seg_reg_file(5)<=c_reg_file(5);
-		
+	if screen_in = "100" then
+		if (push_dl='0') then
+			seg_reg_file(0)<=c_reg_file(0);
+			seg_reg_file(1)<=c_reg_file(1);
+			seg_reg_file(2)<=c_reg_file(2);
+			seg_reg_file(3)<=c_reg_file(3);
+			seg_reg_file(4)<=c_reg_file(4);
+			seg_reg_file(5)<=c_reg_file(5);
+		else
+			for i in 0 to 5 loop
+				seg_reg_file(i) <= "0000";
+			end loop;
+		end if;
 	end if;
 end process;
 
-
 	
-	process(FPGA_RSTB, CLK)											-- segment로 보내는 데이터
-	begin
-		if FPGA_RSTB = '0' then
+	process(FPGA_RSTB, CLK)
+	Begin
+		if FPGA_RSTB ='0' then
 			cnt_seg_reg <= (others => '0');
 			seg_data_out <= '0';
-		elsif CLK = '1' and CLK'event then
-			if seg_w_enable = '1' then
-				seg_data <= seg_reg_file(conv_integer(cnt_seg_reg));
+		elsif CLK='1' and CLK'event then
+			seg_data <= seg_reg_file(conv_integer(cnt_seg_reg));
 				seg_addr <= cnt_seg_reg;
 				seg_data_out <= '1';
-				if cnt_seg_reg = "101" then								-- segment 6자리까지 갔을 때
-					cnt_seg_reg <= (others => '0');
-				else
-					cnt_seg_reg <= cnt_seg_reg + 1;
-				end if;
+			if cnt_seg_reg = "101" then								-- segment 6자리까지 갔을 때
+				cnt_seg_reg <= (others => '0');
 			else
-				seg_data_out <= '0';
+				cnt_seg_reg <= cnt_seg_reg + 1;
 			end if;
 		end if;
-	end process;	
+	end process;
 
    
 end Behavioral;
