@@ -44,46 +44,41 @@ architecture Behavioral of screen_write is
 
 type reg is array( 0 to 31 ) of std_logic_vector( 7 downto 0 );
 signal letter_reg_file : reg;                                         
+
+type seg_reg is array( 0 to 5 ) of std_logic_vector( 3 downto 0 ); -- 2D array declare
+signal c_reg_file: seg_reg;
+signal reg_file : seg_reg;
+
+type segmentset is array( 0 to 5 ) of std_logic_vector( 3 downto 0 ); 
+signal seg_reg_file : segmentset;
+
+
 signal w_enable_reg : std_logic;
 signal lcd_cnt : std_logic_vector (8 downto 0);
 signal lcd_state : std_logic_vector (7 downto 0);
 signal lcd_db : std_logic_vector (7 downto 0);
+
+signal cnt : std_logic_vector(4 downto 0);
+signal cnt_lcd : std_logic_vector(5 downto 0);
+signal cnt_seg_reg: std_logic_vector (2 downto 0);
+
+
 signal count : std_logic_vector (1 downto 0);
 signal first, second : std_logic_vector (3 downto 0);
 signal csr : std_logic_vector( 4 downto 0);
+
 signal sl_data_beforeencode : STD_LOGIC_VECTOR (7 downto 0);
 signal syn_code : STD_LOGIC_VECTOR (7 downto 0);
-type segmentset is array( 0 to 5 ) of std_logic_vector( 3 downto 0 ); 
-signal seg_reg_file : segmentset;
-signal wc_addr_bin : STD_LOGIC_VECTOR (2 downto 0);
-
-
--- isk & 민지
-signal sl_addr_beforeencode : STD_LOGIC_VECTOR (4 downto 0);
-signal sl_data_beforeencode : STD_LOGIC_VECTOR (7 downto 0);
-signal syn_code : STD_LOGIC_VECTOR (7 downto 0);
-type seg_reg is array( 0 to 5 ) of std_logic_vector( 3 downto 0 ); -- 2D array declare
-signal seg_reg_file: seg_reg;
-signal c_reg_file: seg_reg;
-signal reg_file : seg_reg;
-signal cnt : std_logic_vector(4 downto 0);
---clock
-signal s10_clk, s01_clk, m10_clk, m01_clk, h10_clk, h01_clk: std_logic;--초, 분, 시의 클락 내부신호
-signal hr10_cnt, hr01_cnt: std_logic_vector(3 downto 0);--시간을 카운트하는 내부신호 
-signal min10_cnt, min01_cnt: std_logic_vector(3 downto 0);--분을 카운트하는 내부신호
-signal sec10_cnt, sec01_cnt: std_logic_vector(3 downto 0);--초를 카운트하는 내부신호
-----------------
-signal cnt_seg_reg: std_logic_vector (2 downto 0)
-
-begin
-----------------------------------------------------------------
-
---kmj clock-------------------------------------------------------------------------------------------------
 
 signal s10_clk, s01_clk, m10_clk, m01_clk, h10_clk, h01_clk: std_logic;--초, 분, 시의 클락 내부신호
 signal hr10_cnt, hr01_cnt: std_logic_vector(3 downto 0);--시간을 카운트하는 내부신호 
 signal min10_cnt, min01_cnt: std_logic_vector(3 downto 0);--분을 카운트하는 내부신호
 signal sec10_cnt, sec01_cnt: std_logic_vector(3 downto 0);--초를 카운트하는 내부신호
+
+
+
+
+
 
 begin
 	process(FPGA_RSTB,CLK)--rst_n과 clk에 대한 프로세스
@@ -101,7 +96,7 @@ begin
 			end if;
 		end if;
 	end process;
-	now
+	
 
 	process(s01_clk, FPGA_RSTB)--s01_clk, rst_n에 대한 프로세스
 	variable h10_cnt, h01_cnt:STD_LOGIC_VECTOR(3 downto 0);--시간을 나타내는 변수. 3downto0인 이유는 0부터 9를 표현하기 위해서
@@ -114,7 +109,7 @@ begin
 		m01_cnt:="1001";--분의 일의자리는 9
 		m10_cnt:="0000";--분의 십의자리는 0
 		h01_cnt:="1001";--시의 일의자리는 9
-		h10_cnt:="0000";--시의 십의자리는 0 리셋했을 때 결과를 모두 합치면 08시 08분 08초가 된다
+		h10_cnt:="0000";--시의 십의자리는 0 리셋했을 때 결과를 모두 합치면 09시 9분 9초가 된다
 		elsif(s01_clk'event and s01_clk='1') then--s01_clk이 1이 되었을때. 1초가 흘렀을 때를 나타낸다
 			s01_cnt:=s01_cnt+1;--s01_cnt가 1 오른다
 				if(s01_cnt>"1001") then--초의 일의자리가 9보다크면
@@ -165,15 +160,15 @@ begin
             letter_reg_file(1) <= X"20";                                 
          end loop;
       elsif(CLK='1'and CLK'event) then                             
-         if(push_ul = '0') then    
+         if(push_uc = '0') then    
            
             csr<= csr + 1;      
-            if(csr= "11000")then
-               csr<="11000";
+            if(csr= "11001")then
+               csr<="11001";
             end if;
-         elsif(push_uc = '0') then
+         elsif(push_ul = '0') then
          
-            csr<= csr- 1;
+            csr<= csr - 1;
             if(csr = "00000")then
                csr <= "00000";
             end if;
@@ -196,18 +191,22 @@ begin
          if(push_ur = '0' and count ="00" )then
             count <= "01";
             first<=binary;  
-         letter_reg_file(conv_integer(csr)) <= "01001100";
+				
          end if;
          
          if(push_ur = '0' and  count = "01")then 
             second <= binary;
-            count <= "01";
-            letter_reg_file(conv_integer(csr)) <= first and second ;      
+            count <= "00";
+            letter_reg_file(conv_integer(csr)) <= first & second ;      
          end if;
       end if;
    
    end process;
+	
+	
 ----------------------------------------------------------
+
+
   PROCESS( FPGA_RSTB , CLK ) 
    begin      
 		if (push_dc='0') then
@@ -247,18 +246,40 @@ begin
 					else
 						letter_reg_file(31) <= sec01_cnt + X"37";--아스키코드와의 차이를 메꿈
 					end if;					
-			end if;		
+			end if;	
+		end process;
 ----------------------------------------------------------------------
 
 
----보냄
 sl_addr <= csr;
 sl_data_beforeencode <= letter_reg_file(conv_integer(csr));
+--커서 문제생기면 레그파일 노가다
 
-
-
-------------------------isk
 sl_data <= sl_data_beforeencode xor syn_code; -- 암호화!!!
+
+
+	
+	process(FPGA_RSTB, CLK)
+	begin
+		if FPGA_RSTB = '0' then
+			cnt_lcd <= (others => '0');
+			lcd_data_out <= '0';
+		elsif CLK = '1' and CLK'event then
+			if lcd_w_enable = '1' then				
+				lcd_data <= sl_data_beforeencode;
+				lcd_addr <= csr;
+				lcd_data_out <= '1';
+				if cnt_lcd = "100000" then	
+					cnt_lcd <= (others => '0');
+				else
+					cnt_lcd <= cnt_lcd + 1;
+				end if;
+			else
+				lcd_data_out <= '0';
+			end if;
+		end if;
+	end process;
+	
 
 
 -- 이 이하는 암호화를 하기 위한 난수코드(syn code)를 만들기 위한 것이다
@@ -285,7 +306,7 @@ end process;
 
 
 
-process(FPGA_RSTB, CLK)-- 이게 진짜 섹렉만드는거
+process(FPGA_RSTB, CLK)-- 이게 진짜 시레그만드는거
 Begin
    if FPGA_RSTB ='0' then
       c_reg_file <= (others => "0000");
@@ -299,7 +320,7 @@ end process;
 
 
 -- 민지(동일한게 스크린 리드에도 있고 이건 수정해야됨.)
-process(push_dl,CLK) -- 클락 넣어야 되는거 아닌가??
+process(push_dl,CLK) 
 Begin
 	if (push_dl='0') then
 		for i in 0 to 5 loop
@@ -337,10 +358,7 @@ end process;
 				seg_data_out <= '0';
 			end if;
 		end if;
-	end process;
-------------------------------------------------------------------------------------------
-
-
+	end process;	
 
    
 end Behavioral;
