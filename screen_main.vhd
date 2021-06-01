@@ -40,7 +40,7 @@ architecture Behavioral of screen_main is
 	signal lcd_reg_file : lcd_reg;
 	signal lcd_cnt : std_logic_vector(4 downto 0);
 	
-	type seg_reg is array( 0 to 5 ) of std_logic_vector( 3 downto 0 );
+	type seg_reg is array( 0 to 8 ) of std_logic_vector( 3 downto 0 );
 	signal seg_reg_file : seg_reg;
 	signal seg_cnt : std_logic_vector(2 downto 0);
 	
@@ -63,12 +63,12 @@ architecture Behavioral of screen_main is
 	signal sl_enable_reg : std_logic;
 	
 	signal letter_num : std_logic_vector(2 downto 0);
-begin
-	seg_reg_file(0) <= "1000";
-	
+begin	
 	process(FPGA_RSTB, CLK)
 	begin
 		if FPGA_RSTB ='0' then
+			screen_out <= "000";
+			
 			letter_num <= "000";
 			letter_1_exist <= '0';
 			letter_2_exist <= '0';
@@ -76,13 +76,13 @@ begin
 			letter_4_exist <= '0';
 			letter_5_exist <= '0';
 			
---			for i in 0 to 31 loop
---				lcd_reg_file(i) <= X"20"; -- initialize register_files
---			end loop;
+			for i in 0 to 31 loop
+				lcd_reg_file(i) <= X"20"; -- initialize register_files
+			end loop;
 			
---			for i in 0 to 5 loop
---				seg_reg_file(i) <= X"0"; -- initialize register_files
---			end loop;
+			for i in 0 to 8 loop
+				seg_reg_file(i) <= X"0"; -- initialize register_files
+			end loop;
 			
 			lcd_reg_file(0) <= x"31";
 			lcd_reg_file(1) <= x"DB";
@@ -158,7 +158,7 @@ begin
 			seg_addr <= seg_cnt;
 			seg_data_out <= '1';
 			
-			if seg_cnt= "110" then -- 3110
+			if seg_cnt= "101" then
 				seg_cnt <= (others =>'0');
 			else
 				seg_cnt <= seg_cnt + 1;

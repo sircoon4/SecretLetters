@@ -405,60 +405,60 @@ begin
 			screen_in_reg <= "000";
 		elsif(rising_edge (CLK)) then
 			if screen_in_reg = "000" then -- main screen
-				lcd_w_enable_reg <= lcd_w_enable_reg_arr(0);
+				lcd_w_enable_reg_arr(0) <= lcd_w_enable_reg;
 				lcd_data_out_reg <= lcd_data_out_reg_arr(0);
 				lcd_addr_reg <= lcd_addr_reg_arr(0);
 				lcd_data_reg <= lcd_data_reg_arr(0);
 				
-				seg_w_enable_reg <= seg_w_enable_reg_arr(0);
+				seg_w_enable_reg_arr(0) <= seg_w_enable_reg;
 				seg_data_out_reg <= seg_data_out_reg_arr(0);
 				seg_addr_reg <= seg_addr_reg_arr(0);
 				seg_data_reg <= seg_data_reg_arr(0);
 				
 				screen_in_reg <= screen_out_reg_arr(0);
 			elsif screen_in_reg = "001" then -- code_read screen
-				lcd_w_enable_reg <= lcd_w_enable_reg_arr(1);
+				lcd_w_enable_reg_arr(1) <= lcd_w_enable_reg;
 				lcd_data_out_reg <= lcd_data_out_reg_arr(1);
 				lcd_addr_reg <= lcd_addr_reg_arr(1);
 				lcd_data_reg <= lcd_data_reg_arr(1);
 				
-				seg_w_enable_reg <= seg_w_enable_reg_arr(1);
+				seg_w_enable_reg_arr(1) <= seg_w_enable_reg;
 				seg_data_out_reg <= seg_data_out_reg_arr(1);
 				seg_addr_reg <= seg_addr_reg_arr(1);
 				seg_data_reg <= seg_data_reg_arr(1);
 				
 				screen_in_reg <= screen_out_reg_arr(1);
 			elsif screen_in_reg = "010" then -- code_write screen
-				lcd_w_enable_reg <= lcd_w_enable_reg_arr(2);
+				lcd_w_enable_reg_arr(2) <= lcd_w_enable_reg;
 				lcd_data_out_reg <= lcd_data_out_reg_arr(2);
 				lcd_addr_reg <= lcd_addr_reg_arr(2);
 				lcd_data_reg <= lcd_data_reg_arr(2);
 				
-				seg_w_enable_reg <= seg_w_enable_reg_arr(2);
+				seg_w_enable_reg_arr(2) <= seg_w_enable_reg;
 				seg_data_out_reg <= seg_data_out_reg_arr(2);
 				seg_addr_reg <= seg_addr_reg_arr(2);
 				seg_data_reg <= seg_data_reg_arr(2);
 				
 				screen_in_reg <= screen_out_reg_arr(2);
 			elsif screen_in_reg = "011" then -- read screen
-				lcd_w_enable_reg <= lcd_w_enable_reg_arr(3);
+				lcd_w_enable_reg_arr(3) <= lcd_w_enable_reg;
 				lcd_data_out_reg <= lcd_data_out_reg_arr(3);
 				lcd_addr_reg <= lcd_addr_reg_arr(3);
 				lcd_data_reg <= lcd_data_reg_arr(3);
 				
-				seg_w_enable_reg <= seg_w_enable_reg_arr(3);
+				seg_w_enable_reg_arr(3) <= seg_w_enable_reg;
 				seg_data_out_reg <= seg_data_out_reg_arr(3);
 				seg_addr_reg <= seg_addr_reg_arr(3);
 				seg_data_reg <= seg_data_reg_arr(3);
 				
 				screen_in_reg <= screen_out_reg_arr(3);
 			elsif screen_in_reg = "100" then -- write screen
-				lcd_w_enable_reg <= lcd_w_enable_reg_arr(4);
+				lcd_w_enable_reg_arr(4) <= lcd_w_enable_reg;
 				lcd_data_out_reg <= lcd_data_out_reg_arr(4);
 				lcd_addr_reg <= lcd_addr_reg_arr(4);
 				lcd_data_reg <= lcd_data_reg_arr(4);
 				
-				seg_w_enable_reg <= seg_w_enable_reg_arr(4);
+				seg_w_enable_reg_arr(4) <= seg_w_enable_reg;
 				seg_data_out_reg <= seg_data_out_reg_arr(4);
 				seg_addr_reg <= seg_addr_reg_arr(4);
 				seg_data_reg <= seg_data_reg_arr(4);
