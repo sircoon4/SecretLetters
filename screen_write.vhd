@@ -156,9 +156,7 @@ begin
    process(FPGA_RSTB, CLK)                                         
    begin
       if (FPGA_RSTB='0') then                                      
-         for i in 0 to 31 loop
-            letter_reg_file(1) <= X"20";                                 
-         end loop;
+         screen_out <= "100";
       elsif(CLK='1'and CLK'event) then                             
          if(push_uc = '0') then    
            
@@ -172,13 +170,10 @@ begin
             if(csr = "00000")then
                csr <= "00000";
             end if;
-         end if;
-      
-      elsif(push_dr = '0') then                          
-         
-         screen_out<="000";      
-                                                            
-      end if;
+			elsif(push_dr = '0') then
+				screen_out<="000";                                  
+			end if;
+		end if;
    end process;
    
 ---------------------------------------------값   
@@ -186,6 +181,10 @@ begin
    begin   
       if(FPGA_RSTB='0')then                                        
          count <= "00";
+			
+			for i in 0 to 31 loop
+            letter_reg_file(i) <= X"20";                                 
+         end loop;
          
       elsif(CLK = '1' and CLK'event)then                             
          if(push_ur = '0' and count ="00" )then
@@ -199,56 +198,48 @@ begin
             count <= "00";
             letter_reg_file(conv_integer(csr)) <= first & second ;      
          end if;
+			
+			if (push_dc='0') then
+				if hr10_cnt < "1010" then
+					letter_reg_file(26) <= hr10_cnt + X"30";--아스키코드와의 차이를 메꿈
+				else
+					letter_reg_file(26) <= hr10_cnt + X"37";--아스키코드와의 차이를 메꿈
+				end if;
+				
+				if hr01_cnt < "1010" then
+					letter_reg_file(27) <= hr01_cnt + X"30";--아스키코드와의 차이를 메꿈
+				else
+					letter_reg_file(27) <= hr01_cnt + X"37";--아스키코드와의 차이를 메꿈
+				end if;			
+				
+				if min10_cnt < "1010" then
+					letter_reg_file(28) <= min10_cnt + X"30";--아스키코드와의 차이를 메꿈
+				else
+					letter_reg_file(28) <= min10_cnt + X"37";--아스키코드와의 차이를 메꿈
+				end if;
+				
+				if min01_cnt < "1010" then
+					letter_reg_file(29) <= min01_cnt + X"30";--아스키코드와의 차이를 메꿈
+				else
+					letter_reg_file(29) <= min01_cnt + X"37";--아스키코드와의 차이를 메꿈
+				end if;
+
+				if sec10_cnt < "1010" then
+					letter_reg_file(30) <= sec10_cnt + X"30";--아스키코드와의 차이를 메꿈
+				else
+					letter_reg_file(30) <= sec10_cnt + X"37";--아스키코드와의 차이를 메꿈
+				end if;
+				
+				if sec01_cnt < "1010" then
+					letter_reg_file(31) <= sec01_cnt + X"30";--아스키코드와의 차이를 메꿈
+				else
+					letter_reg_file(31) <= sec01_cnt + X"37";--아스키코드와의 차이를 메꿈
+				end if;					
+			end if;	
       end if;
-   
+		
    end process;
 	
-	
-----------------------------------------------------------
-
-
-  PROCESS( FPGA_RSTB , CLK ) 
-   begin      
-		if (push_dc='0') then
-			
-					if hr10_cnt < "1010" then
-						letter_reg_file(26) <= hr10_cnt + X"30";--아스키코드와의 차이를 메꿈
-					else
-						letter_reg_file(26) <= hr10_cnt + X"37";--아스키코드와의 차이를 메꿈
-					end if;
-					
-					if hr01_cnt < "1010" then
-						letter_reg_file(27) <= hr01_cnt + X"30";--아스키코드와의 차이를 메꿈
-					else
-						letter_reg_file(27) <= hr01_cnt + X"37";--아스키코드와의 차이를 메꿈
-					end if;			
-					
-					if min10_cnt < "1010" then
-						letter_reg_file(28) <= min10_cnt + X"30";--아스키코드와의 차이를 메꿈
-					else
-						letter_reg_file(28) <= min10_cnt + X"37";--아스키코드와의 차이를 메꿈
-					end if;
-					
-					if min01_cnt < "1010" then
-						letter_reg_file(29) <= min01_cnt + X"30";--아스키코드와의 차이를 메꿈
-					else
-						letter_reg_file(29) <= min01_cnt + X"37";--아스키코드와의 차이를 메꿈
-					end if;
-
-					if sec10_cnt < "1010" then
-						letter_reg_file(30) <= sec10_cnt + X"30";--아스키코드와의 차이를 메꿈
-					else
-						letter_reg_file(30) <= sec10_cnt + X"37";--아스키코드와의 차이를 메꿈
-					end if;
-					
-					if sec01_cnt < "1010" then
-						letter_reg_file(31) <= sec01_cnt + X"30";--아스키코드와의 차이를 메꿈
-					else
-						letter_reg_file(31) <= sec01_cnt + X"37";--아스키코드와의 차이를 메꿈
-					end if;					
-			end if;	
-		end process;
-----------------------------------------------------------------------
 
 
 sl_addr <= csr;

@@ -11,16 +11,8 @@ Time resolution is 1 ps
 # run 1000 ns
 Simulator is doing circuit initialization process.
 at 0 ps, Instance /vt_secret_letters/uut/dp_module/ : Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+at 0 ps, Instance /vt_secret_letters/uut/scr_write/ : Warning: CONV_INTEGER: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, and it has been converted to 0.
 Finished circuit initialization process.
+at 0 ps, Instance /vt_secret_letters/uut/scr_write/ : Warning: CONV_INTEGER: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, and it has been converted to 0.
 # run all
-Stopped at time : 1438037375 ns : File "C:/Workspace/SecretLetters/screen_code_read.vhd" Line 163
-# run all
-Stopped at time : 2285838375 ns : File "C:/Workspace/SecretLetters/display_module.vhd" Line 57
-# run 25.00us
-# run 25.00us
-# run 25.00us
-# run 25.00us
-# run 25.00us
-# run 25.00us
-# run 25.00us
-# run 25.00us
+Stopped at time : 1876265250 ns : File "C:/Workspace/SecretLetters/secret_letters.vhd" Line 344

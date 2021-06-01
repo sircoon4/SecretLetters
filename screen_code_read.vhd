@@ -122,6 +122,12 @@ begin
 				seg_file(conv_integer(enter)) <= binary;
 			end if;
 			bc_clicked <= push_ul;
+			
+			if push_dc = '0' then
+				screen_out <= "011";
+			elsif push_dr = '0' then
+				screen_out <= "000";
+			end if;
 		end if;
 		
 --		if push_dr = '0' then					-- 커서 오른쪽으로 이동했을 때 

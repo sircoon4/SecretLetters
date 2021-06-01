@@ -213,7 +213,7 @@ end process;
 process(FPGA_RSTB, CLK)
 begin
 	if FPGA_RSTB ='0' then
-		screen_out <= "000";
+		screen_out <= "011";
 	elsif CLK='1' and CLK'event then
 		if push_dr = '0' then
 			screen_out <= "000";
