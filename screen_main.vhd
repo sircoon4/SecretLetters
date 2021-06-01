@@ -66,6 +66,7 @@ architecture Behavioral of screen_main is
 begin	
 	process(FPGA_RSTB, CLK)
 	begin
+		seg_reg_file(0) <= "0001";
 		if FPGA_RSTB ='0' then
 			screen_out <= "000";
 			

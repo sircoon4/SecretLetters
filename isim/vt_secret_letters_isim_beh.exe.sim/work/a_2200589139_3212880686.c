@@ -21,7 +21,7 @@
 #include <malloc.h>
 #define alloca _alloca
 #endif
-static const char *ng0 = "C:/Users/SirCoon/Workspace/XilinxWorkspace/SecretLetters/secret_letters.vhd";
+static const char *ng0 = "C:/Workspace/SecretLetters/secret_letters.vhd";
 extern char *IEEE_P_2592010699;
 extern char *IEEE_P_3620187407;
 
@@ -102,7 +102,7 @@ LAB3:    t1 = (t0 + 11576);
 
 LAB1:    return;
 LAB2:    xsi_set_current_line(405, ng0);
-    t1 = (t0 + 23861);
+    t1 = (t0 + 21881);
     t6 = (t0 + 11720);
     t7 = (t6 + 56U);
     t8 = *((char **)t7);
@@ -115,8 +115,8 @@ LAB2:    xsi_set_current_line(405, ng0);
 LAB5:    xsi_set_current_line(407, ng0);
     t2 = (t0 + 8232U);
     t5 = *((char **)t2);
-    t2 = (t0 + 23384U);
-    t6 = (t0 + 23864);
+    t2 = (t0 + 21404U);
+    t6 = (t0 + 21884);
     t8 = (t11 + 0U);
     t9 = (t8 + 0U);
     *((int *)t9) = 0;
@@ -135,8 +135,8 @@ LAB5:    xsi_set_current_line(407, ng0);
 
 LAB9:    t1 = (t0 + 8232U);
     t2 = *((char **)t1);
-    t1 = (t0 + 23384U);
-    t5 = (t0 + 23867);
+    t1 = (t0 + 21404U);
+    t5 = (t0 + 21887);
     t7 = (t11 + 0U);
     t8 = (t7 + 0U);
     *((int *)t8) = 0;
@@ -155,8 +155,8 @@ LAB9:    t1 = (t0 + 8232U);
 
 LAB11:    t1 = (t0 + 8232U);
     t2 = *((char **)t1);
-    t1 = (t0 + 23384U);
-    t5 = (t0 + 23870);
+    t1 = (t0 + 21404U);
+    t5 = (t0 + 21890);
     t7 = (t11 + 0U);
     t8 = (t7 + 0U);
     *((int *)t8) = 0;
@@ -175,8 +175,8 @@ LAB11:    t1 = (t0 + 8232U);
 
 LAB13:    t1 = (t0 + 8232U);
     t2 = *((char **)t1);
-    t1 = (t0 + 23384U);
-    t5 = (t0 + 23873);
+    t1 = (t0 + 21404U);
+    t5 = (t0 + 21893);
     t7 = (t11 + 0U);
     t8 = (t7 + 0U);
     *((int *)t8) = 0;
@@ -195,8 +195,8 @@ LAB13:    t1 = (t0 + 8232U);
 
 LAB15:    t1 = (t0 + 8232U);
     t2 = *((char **)t1);
-    t1 = (t0 + 23384U);
-    t5 = (t0 + 23876);
+    t1 = (t0 + 21404U);
+    t5 = (t0 + 21896);
     t7 = (t11 + 0U);
     t8 = (t7 + 0U);
     *((int *)t8) = 0;

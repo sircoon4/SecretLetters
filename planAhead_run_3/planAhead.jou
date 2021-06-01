@@ -1,0 +1,10 @@
+#-----------------------------------------------------------
+# PlanAhead v14.7
+# Build 321239 by xbuild on Fri Sep 27 19:31:35 MDT 2013
+# Start of session at: Tue Jun 01 18:59:29 2021
+# Process ID: 132
+# Log file: C:/Workspace/SecretLetters/planAhead_run_3/planAhead.log
+# Journal file: C:/Workspace/SecretLetters/planAhead_run_3/planAhead.jou
+#-----------------------------------------------------------
+start_gui
+source C:/Workspace/SecretLetters/pa.fromNetlist.tcl

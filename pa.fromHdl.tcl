@@ -1,7 +1,7 @@
 
 # PlanAhead Launch Script for Pre-Synthesis Floorplanning, created by Project Navigator
 
-create_project -name SecretLetters -dir "C:/Workspace/SecretLetters/planAhead_run_1" -part xc3s200pq208-4
+create_project -name SecretLetters -dir "C:/Workspace/SecretLetters/planAhead_run_2" -part xc3s200pq208-4
 set_param project.pinAheadLayout yes
 set srcset [get_property srcset [current_run -impl]]
 set_property target_constrs_file "secret_letters.ucf" [current_fileset -constrset]

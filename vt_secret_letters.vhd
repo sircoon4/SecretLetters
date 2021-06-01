@@ -120,6 +120,34 @@ BEGIN
 		
 		FPGA_RSTB <= '1';
 		
+		wait for 1000ms;
+		
+		PUSH_DL <= '0';
+		wait for 10ms;
+		PUSH_DL <= '1';
+		wait for 10ms;
+		
+		wait for 200ms;
+		
+		PUSH_DR <= '0';
+		wait for 10ms;
+		PUSH_DR <= '1';
+		wait for 10ms;
+		
+		PUSH_DC <= '0';
+		wait for 10ms;
+		PUSH_DC <= '1';
+		wait for 10ms;
+		
+		PUSH_DR <= '0';
+		wait for 10ms;
+		PUSH_DR <= '1';
+		wait for 10ms;
+		
+		PUSH_DC <= '0';
+		wait for 10ms;
+		PUSH_DC <= '1';
+		wait for 10ms;
 
       wait;
    end process;

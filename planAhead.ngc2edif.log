@@ -1,0 +1,18 @@
+Release 14.7 - ngc2edif P.20131013 (nt)
+Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
+Reading design secret_letters.ngc ...
+WARNING:NetListWriters:298 - No output is written to secret_letters.xncf,
+   ignored.
+Processing design ...
+   Preping design's networks ...
+   Preping design's macros ...
+WARNING:NetListWriters:306 - Signal bus lcd_data_reg_mux0000<7 : 0> on block
+   secret_letters is not reconstructed, because there are some missing bus
+   signals.
+WARNING:NetListWriters:306 - Signal bus scr_code_read/cursor_mux0006<3 : 0> on
+   block secret_letters is not reconstructed, because there are some missing bus
+   signals.
+  finished :Prep
+Writing EDIF netlist file secret_letters.edif ...
+ngc2edif: Total memory usage is 83140 kilobytes
+

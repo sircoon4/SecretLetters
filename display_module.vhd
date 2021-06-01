@@ -45,6 +45,7 @@ architecture Behavioral of display_module is
 	---------------------------------------------------------------------------- Ãß°¡
 	type seg_type is array(0 to 5) of std_logic_vector(3 downto 0);
 	signal seg_file : seg_type;
+	signal w_enable_seg : std_logic;
 	signal sel : std_logic_vector(2 downto 0);
 	signal segment : std_logic_vector(3 downto 0);
 	signal seg : std_logic_vector(7 downto 0);
