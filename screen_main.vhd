@@ -72,11 +72,6 @@ begin
 			screen_out <= "000";
 			
 			letter_num <= "000";
-			letter_1_exist <= '0';
-			letter_2_exist <= '0';
-			letter_3_exist <= '0';
-			letter_4_exist <= '0';
-			letter_5_exist <= '0';
 			
 			for i in 0 to 31 loop
 				lcd_reg_file(i) <= X"20"; -- initialize register_files
@@ -90,12 +85,12 @@ begin
 			lcd_reg_file(1) <= x"DB";
 			lcd_reg_file(3) <= x"32";
 			lcd_reg_file(4) <= x"DB";
-			lcd_reg_file(6) <= x"33";
-			lcd_reg_file(7) <= x"DB";
-			lcd_reg_file(9) <= x"34";
-			lcd_reg_file(10) <= x"DB";
-			lcd_reg_file(12) <= x"35";
-			lcd_reg_file(13) <= x"DB";
+--			lcd_reg_file(6) <= x"33";
+--			lcd_reg_file(7) <= x"DB";
+--			lcd_reg_file(9) <= x"34";
+--			lcd_reg_file(10) <= x"DB";
+--			lcd_reg_file(12) <= x"35";
+--			lcd_reg_file(13) <= x"DB";
 			
 		elsif CLK='1' and CLK'event then
 			if screen_in /= "000" then
@@ -180,22 +175,25 @@ begin
 			rl_data_out <= '0';
 		elsif CLK='1' and CLK'event then
 			if screen_in = "011" then
+				rl_data_out <= '1';
+				
 				case letter_num is
-					when "000" => rl_data <= letter_1(conv_integer(rl_cnt));
-					when "001" => rl_data <= letter_2(conv_integer(rl_cnt));
-					when "010" => rl_data <= letter_3(conv_integer(rl_cnt));
-					when "011" => rl_data <= letter_4(conv_integer(rl_cnt));
-					when "100" => rl_data <= letter_5(conv_integer(rl_cnt));
+					when "001" => rl_data <= letter_1(conv_integer(rl_cnt));
+					when "010" => rl_data <= letter_2(conv_integer(rl_cnt));
+					-- when "010" => rl_data <= letter_3(conv_integer(rl_cnt));
+					-- when "011" => rl_data <= letter_4(conv_integer(rl_cnt));
+					-- when "100" => rl_data <= letter_5(conv_integer(rl_cnt));
 					when others => rl_data <= X"20";
 				end case;
 				rl_addr <= rl_cnt;
-				rl_data_out <= '1';
 				
 				if rl_cnt= X"1F" then -- 3110
 					rl_cnt <= (others =>'0');
 				else
 					rl_cnt <= rl_cnt + 1;
 				end if;
+			else
+				rl_data_out <= '0';
 			end if;
 		end if;
 	end process;
@@ -203,6 +201,12 @@ begin
 	process(FPGA_RSTB, CLK)
 	Begin
 		if FPGA_RSTB ='0' then
+			letter_1_exist <= '0';
+			letter_2_exist <= '0';
+--			letter_3_exist <= '0';
+--			letter_4_exist <= '0';
+--			letter_5_exist <= '0';
+
 			for i in 0 to 31 loop
 				letter_1(i) <= X"20"; -- initialize register_files
 			end loop;
@@ -211,17 +215,17 @@ begin
 				letter_2(i) <= X"20"; -- initialize register_files
 			end loop;
 			
-			for i in 0 to 31 loop
-				letter_3(i) <= X"20"; -- initialize register_files
-			end loop;
-			
-			for i in 0 to 31 loop
-				letter_4(i) <= X"20"; -- initialize register_files
-			end loop;
-			
-			for i in 0 to 31 loop
-				letter_5(i) <= X"20"; -- initialize register_files
-			end loop;
+--			for i in 0 to 31 loop
+--				letter_3(i) <= X"20"; -- initialize register_files
+--			end loop;
+--			
+--			for i in 0 to 31 loop
+--				letter_4(i) <= X"20"; -- initialize register_files
+--			end loop;
+--			
+--			for i in 0 to 31 loop
+--				letter_5(i) <= X"20"; -- initialize register_files
+--			end loop;
 			
 			sl_enable_reg <= '0';
 		elsif CLK'event and CLK='1' then
@@ -233,11 +237,15 @@ begin
 
 			if sl_enable_reg = '1' and sl_data_out ='1' then
 				case letter_num is
-					when "000" => letter_1(conv_integer(sl_addr)) <= sl_data;
-					when "001" => letter_2(conv_integer(sl_addr)) <= sl_data;
-					when "010" => letter_3(conv_integer(sl_addr)) <= sl_data;
-					when "011" => letter_4(conv_integer(sl_addr)) <= sl_data;
-					when "100" => letter_5(conv_integer(sl_addr)) <= sl_data;
+					when "001" => 
+						letter_1(conv_integer(sl_addr)) <= sl_data;
+						letter_1_exist <= '1';
+					when "010" => 
+						letter_2(conv_integer(sl_addr)) <= sl_data;
+						letter_2_exist <= '1';
+					-- when "010" => letter_3(conv_integer(sl_addr)) <= sl_data;
+					-- when "011" => letter_4(conv_integer(sl_addr)) <= sl_data;
+					-- when "100" => letter_5(conv_integer(sl_addr)) <= sl_data;
 					when others => letter_5(0) <= X"20";
 				end case;
 			end if;

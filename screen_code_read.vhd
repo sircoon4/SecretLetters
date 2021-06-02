@@ -25,7 +25,7 @@ entity screen_code_read is
            screen_out : out  STD_LOGIC_VECTOR (2 downto 0);
            rc_enable : in  STD_LOGIC;
            rc_data_out : out  STD_LOGIC;
-           rc_addr : out  STD_LOGIC_VECTOR (5 downto 0);
+           rc_addr : out  STD_LOGIC_VECTOR (2 downto 0);
            rc_data : out  STD_LOGIC_VECTOR (3 downto 0));
 end screen_code_read;
 
@@ -45,7 +45,7 @@ architecture Behavioral of screen_code_read is
 	signal rc_file : rc;
 	signal cnt_seg : std_logic_vector(2 downto 0);
 	signal cnt_reg : std_logic_vector(4 downto 0);
-	signal cnt_rc : std_logic_vector(5 downto 0);
+	signal cnt_rc : std_logic_vector(2 downto 0);
 	
 	signal bc_clicked : std_logic;
 	

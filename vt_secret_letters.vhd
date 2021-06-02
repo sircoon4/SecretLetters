@@ -122,7 +122,9 @@ BEGIN
 		 
 		wait for 500ms;
 		
-		BINARY <= "0000";
+		
+		------- Main ------
+		BINARY <= "0001";
 		wait for 10ms;
 		
 		PUSH_UR <= '0';
@@ -132,6 +134,7 @@ BEGIN
 		
 		wait for 200ms;
 		
+		------- Code Write ------
 		BINARY <= "0010";
 		wait for 10ms;
 		
@@ -172,12 +175,23 @@ BEGIN
 		
 		wait for 200ms;
 		
+		------- Write ------
 		BINARY <= "0110";
 		wait for 10ms;
+		
+		PUSH_UC <= '0';
+		wait for 30ms;
+		PUSH_UC <= '1';
+		wait for 30ms;
 		
 		PUSH_UR <= '0';
 		wait for 30ms;
 		PUSH_UR <= '1';
+		wait for 30ms;
+		
+		PUSH_UC <= '0';
+		wait for 30ms;
+		PUSH_UC <= '1';
 		wait for 30ms;
 		
 		PUSH_UR <= '0';
@@ -190,7 +204,8 @@ BEGIN
 		PUSH_DR <= '1';
 		wait for 30ms;
 		
-		BINARY <= "0000";
+		------- Main ------
+		BINARY <= "0001";
 		wait for 10ms;
 		
 		PUSH_UC <= '0';
@@ -200,6 +215,7 @@ BEGIN
 		
 		wait for 200ms;
 		
+		------- Code Read ------
 		BINARY <= "0010";
 		wait for 10ms;
 		
@@ -240,25 +256,7 @@ BEGIN
 		
 		wait for 200ms;
 		
---		PUSH_DR <= '0';
---		wait for 10ms;
---		PUSH_DR <= '1';
---		wait for 10ms;
---		
---		PUSH_DC <= '0';
---		wait for 10ms;
---		PUSH_DC <= '1';
---		wait for 10ms;
---		
---		PUSH_DR <= '0';
---		wait for 10ms;
---		PUSH_DR <= '1';
---		wait for 10ms;
---		
---		PUSH_DC <= '0';
---		wait for 10ms;
---		PUSH_DC <= '1';
---		wait for 10ms;
+		------- Read ------
 
       wait;
    end process;

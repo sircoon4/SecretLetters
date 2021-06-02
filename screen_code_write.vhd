@@ -25,7 +25,7 @@ entity screen_code_write is
            screen_out : out  STD_LOGIC_VECTOR (2 downto 0);
            wc_enable : in  STD_LOGIC;
            wc_data_out : out  STD_LOGIC;
-           wc_addr : out  STD_LOGIC_VECTOR (5 downto 0);
+           wc_addr : out  STD_LOGIC_VECTOR (2 downto 0);
            wc_data : out  STD_LOGIC_VECTOR (3 downto 0));
 end screen_code_write;
 --screen code write
@@ -46,7 +46,7 @@ architecture Behavioral of screen_code_write is
 	signal wc_file : wc;
 	signal cnt_seg : std_logic_vector(2 downto 0);
 	signal cnt_reg : std_logic_vector(4 downto 0);
-	signal cnt_wc : std_logic_vector(5 downto 0);
+	signal cnt_wc : std_logic_vector(2 downto 0);
 	
 	signal bc_clicked : std_logic;
 	

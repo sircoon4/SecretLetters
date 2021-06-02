@@ -33,7 +33,7 @@ entity screen_write is
            sl_data : out  STD_LOGIC_VECTOR (7 downto 0);
            wc_enable : out  STD_LOGIC;
            wc_data_out : in  STD_LOGIC;
-           wc_addr : in  STD_LOGIC_VECTOR (5 downto 0);
+           wc_addr : in  STD_LOGIC_VECTOR (2 downto 0);
            wc_data : in  STD_LOGIC_VECTOR (3 downto 0)
            );
            
@@ -77,6 +77,18 @@ signal min10_cnt, min01_cnt: std_logic_vector(3 downto 0);--분을 카운트하는 내부
 signal sec10_cnt, sec01_cnt: std_logic_vector(3 downto 0);--초를 카운트하는 내부신호
 
 signal sl_cnt : std_logic_vector(4 downto 0);
+
+------------------------------------------------------------------------------------------
+
+signal load_100k : std_logic;
+signal clk_100k : std_logic;
+signal cnt_100k : std_logic_vector (7 downto 0);
+signal load_50 : std_logic;
+signal clk_50 : std_logic;
+signal cnt_50 : std_logic_vector (11 downto 0);
+
+signal ur_clicked : std_logic;
+signal uc_clicked : std_logic;
 
 begin
 	process(FPGA_RSTB,CLK)--rst_n과 clk에 대한 프로세스
@@ -154,7 +166,6 @@ begin
    process(FPGA_RSTB, CLK)                                         
    begin
       if (FPGA_RSTB='0') then
-			csr <= "00000";
          screen_out <= "100";
       elsif(CLK='1'and CLK'event) then      
 			if screen_in /= "100" then
@@ -162,17 +173,18 @@ begin
 			end if;
 			
 			if screen_in = "100" then
-				if(push_uc = '0') then
-					csr<= csr + 1;      
-					if(csr= "11001")then
-						csr<="11001";
-					end if;
-				elsif(push_ul = '0') then
-					csr<= csr - 1;
-					if(csr = "00000")then
-						csr <= "00000";
-					end if;
-				elsif(push_dr = '0') then
+--				if(push_uc = '0') then
+--					csr<= csr + 1;      
+--					if(csr= "11001")then
+--						csr<="11001";
+--					end if;
+--				elsif(push_ul = '0') then
+--					csr<= csr - 1;
+--					if(csr = "00000")then
+--						csr <= "00000";
+--					end if;
+--				els
+				if(push_dr = '0') then
 					screen_out<="000";                                  
 				end if;
 			end if;
@@ -180,66 +192,104 @@ begin
    end process;
    
 ---------------------------------------------값   
-   PROCESS( FPGA_RSTB , CLK ) 
+
+process(FPGA_RSTB,CLK,load_100k,cnt_100k) --Clock(100kHz, 10 us period) Generation
+Begin
+	if FPGA_RSTB = '0' then
+		cnt_100k <= (others => '0');
+		clk_100k <= '0';
+	elsif rising_edge (CLK) then
+		if load_100k = '1' then
+			cnt_100k <= (others => '0');
+			clk_100k <= not clk_100k;
+		else
+			cnt_100k <= cnt_100k + 1;
+		end if;
+	end if;
+end process;
+load_100k <= '1' when (cnt_100k = X"13") else '0'; -- count 20 clk
+
+process(FPGA_RSTB,clk_100k,load_50,cnt_50) --Clock(50 Hz, 20 ms period) Generation
+Begin
+	if FPGA_RSTB = '0' then
+		cnt_50 <= (others => '0');
+		clk_50 <= '0';
+	elsif rising_edge (clk_100k) then
+		if load_50 = '1' then
+			cnt_50 <= (others => '0');
+			clk_50 <= not clk_50;
+		else
+			cnt_50 <= cnt_50 + 1;
+		end if;
+	end if;
+end process;
+load_50 <= '1' when (cnt_50 = X"3E7") else '0'; -- 999
+
+   PROCESS( FPGA_RSTB , clk_50 ) 
    begin
       if(FPGA_RSTB='0')then
          count <= "00";
-			
+			uc_clicked <= '1';
+			ur_clicked <= '1';
+			csr <= "00000";
 			for i in 0 to 31 loop
             letter_reg_file(i) <= X"20";                                 
          end loop;
          
-      elsif(CLK = '1' and CLK'event)then
+      elsif rising_edge (clk_50) then
 			if screen_in = "100" then
-				if(push_ur = '0' and count ="00" )then
-					count <= "01";
-					first<=binary;  
-					
+				if(push_uc = '1' and uc_clicked = '0') then      --assuming active-high
+					if count ="00" then
+						count <= "01";
+						first<=binary;
+					end if;
 				end if;
+				uc_clicked <= push_uc;
 				
-				if(push_ur = '0' and  count = "01")then 
-					second <= binary;
-					count <= "00";
-					letter_reg_file(conv_integer(csr)) <= first & second ;      
+				if(push_ur = '1' and ur_clicked = '0') then      --assuming active-high
+					if count = "01" then
+						count <= "00";
+						letter_reg_file(conv_integer(csr)) <= first & binary;
+						csr <= csr + 1;
+					end if;
 				end if;
+				ur_clicked <= push_ur;
 				
-				if (push_dc='0') then
-					if hr10_cnt < "1010" then
-						letter_reg_file(26) <= hr10_cnt + X"30";--아스키코드와의 차이를 메꿈
-					else
-						letter_reg_file(26) <= hr10_cnt + X"37";--아스키코드와의 차이를 메꿈
-					end if;
-					
-					if hr01_cnt < "1010" then
-						letter_reg_file(27) <= hr01_cnt + X"30";--아스키코드와의 차이를 메꿈
-					else
-						letter_reg_file(27) <= hr01_cnt + X"37";--아스키코드와의 차이를 메꿈
-					end if;			
-					
-					if min10_cnt < "1010" then
-						letter_reg_file(28) <= min10_cnt + X"30";--아스키코드와의 차이를 메꿈
-					else
-						letter_reg_file(28) <= min10_cnt + X"37";--아스키코드와의 차이를 메꿈
-					end if;
-					
-					if min01_cnt < "1010" then
-						letter_reg_file(29) <= min01_cnt + X"30";--아스키코드와의 차이를 메꿈
-					else
-						letter_reg_file(29) <= min01_cnt + X"37";--아스키코드와의 차이를 메꿈
-					end if;
-
-					if sec10_cnt < "1010" then
-						letter_reg_file(30) <= sec10_cnt + X"30";--아스키코드와의 차이를 메꿈
-					else
-						letter_reg_file(30) <= sec10_cnt + X"37";--아스키코드와의 차이를 메꿈
-					end if;
-					
-					if sec01_cnt < "1010" then
-						letter_reg_file(31) <= sec01_cnt + X"30";--아스키코드와의 차이를 메꿈
-					else
-						letter_reg_file(31) <= sec01_cnt + X"37";--아스키코드와의 차이를 메꿈
-					end if;					
-				end if;
+--				if hr10_cnt < "1010" then
+--					letter_reg_file(26) <= hr10_cnt + X"30";--아스키코드와의 차이를 메꿈
+--				else
+--					letter_reg_file(26) <= hr10_cnt + X"37";--아스키코드와의 차이를 메꿈
+--				end if;
+--				
+--				if hr01_cnt < "1010" then
+--					letter_reg_file(27) <= hr01_cnt + X"30";--아스키코드와의 차이를 메꿈
+--				else
+--					letter_reg_file(27) <= hr01_cnt + X"37";--아스키코드와의 차이를 메꿈
+--				end if;			
+--				
+--				if min10_cnt < "1010" then
+--					letter_reg_file(28) <= min10_cnt + X"30";--아스키코드와의 차이를 메꿈
+--				else
+--					letter_reg_file(28) <= min10_cnt + X"37";--아스키코드와의 차이를 메꿈
+--				end if;
+--				
+--				if min01_cnt < "1010" then
+--					letter_reg_file(29) <= min01_cnt + X"30";--아스키코드와의 차이를 메꿈
+--				else
+--					letter_reg_file(29) <= min01_cnt + X"37";--아스키코드와의 차이를 메꿈
+--				end if;
+--
+--				if sec10_cnt < "1010" then
+--					letter_reg_file(30) <= sec10_cnt + X"30";--아스키코드와의 차이를 메꿈
+--				else
+--					letter_reg_file(30) <= sec10_cnt + X"37";--아스키코드와의 차이를 메꿈
+--				end if;
+--				
+--				if sec01_cnt < "1010" then
+--					letter_reg_file(31) <= sec01_cnt + X"30";--아스키코드와의 차이를 메꿈
+--				else
+--					letter_reg_file(31) <= sec01_cnt + X"37";--아스키코드와의 차이를 메꿈
+--				end if;	
 			end if;
       end if;
    end process;

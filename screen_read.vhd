@@ -29,7 +29,7 @@ entity screen_read is
            rl_data : in  STD_LOGIC_VECTOR (7 downto 0);
            rc_enable : out  STD_LOGIC; -- 세그먼트 화면
            rc_data_out : in  STD_LOGIC;
-           rc_addr : in  STD_LOGIC_VECTOR (5 downto 0); -- digit
+           rc_addr : in  STD_LOGIC_VECTOR (2 downto 0); -- digit
            rc_data : in  STD_LOGIC_VECTOR (3 downto 0)); 
 end screen_read;
 
@@ -43,7 +43,7 @@ signal c_reg_file : seg_reg;
 
 type reg is array( 0 to 31 ) of std_logic_vector( 7 downto 0 );	-- 32(16*2)개의 LCD display에 각각 data 형식 정의
 signal decode_letter : reg;
--- signal before_letter : reg;
+signal before_letter : reg;
 
 signal dl_cnt : std_logic_vector(4 downto 0);
 
@@ -94,7 +94,7 @@ end process;
 process(FPGA_RSTB, CLK)
 Begin
 	if FPGA_RSTB ='0' then
-		rl_enable_reg <= '0';
+		-- rl_enable_reg <= '0';
 --		for i in 0 to 31 loop
 --			before_letter(i) <= X"20";
 --		end loop;
@@ -104,18 +104,14 @@ Begin
 		end loop;
 	elsif CLK'event and CLK='1' then
 		if screen_in = "011" then
-			rl_enable_reg <= '1';
-		else
-			rl_enable_reg <= '0';
-		end if;
-
-		if rl_enable_reg = '1' and rl_data_out ='1' then
-			decode_letter(conv_integer(rl_addr)) <= rl_data xor syn_code;
-			-- decode_letter(conv_integer(rl_addr)) <= before_letter(conv_integer(rl_addr)) xor syn_code;
+			if rl_data_out ='1' then
+				before_letter(conv_integer(rl_addr)) <= rl_data;
+				decode_letter(conv_integer(rl_addr)) <= before_letter(conv_integer(rl_addr)) xor syn_code;
+			end if;
 		end if;
 	end if;
 end process;
-rl_enable <= rl_enable_reg;
+-- rl_enable <= rl_enable_reg;
 
 
 ---------------------------------------------- 이제부터 읽자

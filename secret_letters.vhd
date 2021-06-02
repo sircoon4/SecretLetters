@@ -143,7 +143,7 @@ architecture Behavioral of secret_letters is
 			-- read code to read screen
 			rc_enable : in  STD_LOGIC;
 			rc_data_out : out  STD_LOGIC;
-			rc_addr : out  STD_LOGIC_VECTOR (5 downto 0);
+			rc_addr : out  STD_LOGIC_VECTOR (2 downto 0);
 			rc_data : out  STD_LOGIC_VECTOR (3 downto 0)
 			);
 	end component;
@@ -182,7 +182,7 @@ architecture Behavioral of secret_letters is
 			-- write code to write screen
 			wc_enable : in  STD_LOGIC;
 			wc_data_out : out  STD_LOGIC;
-			wc_addr : out  STD_LOGIC_VECTOR (5 downto 0);
+			wc_addr : out  STD_LOGIC_VECTOR (2 downto 0);
 			wc_data : out  STD_LOGIC_VECTOR (3 downto 0)
 			);
 	end component;
@@ -227,7 +227,7 @@ architecture Behavioral of secret_letters is
 			-- read code from code read screen
 			rc_enable : out  STD_LOGIC;
 			rc_data_out : in  STD_LOGIC;
-			rc_addr : in  STD_LOGIC_VECTOR (5 downto 0);
+			rc_addr : in  STD_LOGIC_VECTOR (2 downto 0);
 			rc_data : in  STD_LOGIC_VECTOR (3 downto 0)
 			);
 	end component;
@@ -272,7 +272,7 @@ architecture Behavioral of secret_letters is
 			-- write code from code write screen
 			wc_enable : out  STD_LOGIC;
 			wc_data_out : in  STD_LOGIC;
-			wc_addr : in  STD_LOGIC_VECTOR (5 downto 0);
+			wc_addr : in  STD_LOGIC_VECTOR (2 downto 0);
 			wc_data : in  STD_LOGIC_VECTOR (3 downto 0)
 			);
 	end component;
@@ -292,13 +292,13 @@ architecture Behavioral of secret_letters is
 	-- read code
 	signal rc_enable_reg : STD_LOGIC;
 	signal rc_data_out_reg : STD_LOGIC;
-	signal rc_addr_reg : STD_LOGIC_VECTOR (5 downto 0);
+	signal rc_addr_reg : STD_LOGIC_VECTOR (2 downto 0);
 	signal rc_data_reg : STD_LOGIC_VECTOR (3 downto 0);
 
 	-- write code
 	signal wc_enable_reg : STD_LOGIC;
 	signal wc_data_out_reg : STD_LOGIC;
-	signal wc_addr_reg : STD_LOGIC_VECTOR (5 downto 0);
+	signal wc_addr_reg : STD_LOGIC_VECTOR (2 downto 0);
 	signal wc_data_reg : STD_LOGIC_VECTOR (3 downto 0);
 
 	-- read letter text
