@@ -102,6 +102,7 @@ BEGIN
    stim_proc: process
    begin		
       -- hold reset state for 100 ns.
+		
       wait for 100 ns;	
 
       wait for CLK_period*10;
@@ -127,134 +128,134 @@ BEGIN
 		BINARY <= "0001";
 		wait for 10ms;
 		
-		PUSH_UR <= '0';
-		wait for 10ms;
-		PUSH_UR <= '1';
-		wait for 10ms;
-		
-		wait for 200ms;
-		
-		------- Code Write ------
-		BINARY <= "0010";
-		wait for 10ms;
-		
-		PUSH_UL <= '0';
-		wait for 30ms;
-		PUSH_UL <= '1';
-		wait for 30ms;
-		
-		PUSH_UL <= '0';
-		wait for 30ms;
-		PUSH_UL <= '1';
-		wait for 30ms;
-		
-		PUSH_UL <= '0';
-		wait for 30ms;
-		PUSH_UL <= '1';
-		wait for 30ms;
-		
-		PUSH_UL <= '0';
-		wait for 30ms;
-		PUSH_UL <= '1';
-		wait for 30ms;
-		
-		PUSH_UL <= '0';
-		wait for 30ms;
-		PUSH_UL <= '1';
-		wait for 30ms;
-		
-		PUSH_UL <= '0';
-		wait for 30ms;
-		PUSH_UL <= '1';
-		wait for 30ms;
-		
-		PUSH_DC <= '0';
-		wait for 30ms;
-		PUSH_DC <= '1';
-		wait for 30ms;
-		
-		wait for 200ms;
-		
-		------- Write ------
-		BINARY <= "0110";
-		wait for 10ms;
-		
-		PUSH_UC <= '0';
-		wait for 30ms;
-		PUSH_UC <= '1';
-		wait for 30ms;
-		
-		PUSH_UR <= '0';
-		wait for 30ms;
-		PUSH_UR <= '1';
-		wait for 30ms;
-		
-		PUSH_UC <= '0';
-		wait for 30ms;
-		PUSH_UC <= '1';
-		wait for 30ms;
-		
-		PUSH_UR <= '0';
-		wait for 30ms;
-		PUSH_UR <= '1';
-		wait for 30ms;
-		
-		PUSH_DR <= '0';
-		wait for 30ms;
-		PUSH_DR <= '1';
-		wait for 30ms;
-		
-		------- Main ------
-		BINARY <= "0001";
-		wait for 10ms;
-		
-		PUSH_UC <= '0';
-		wait for 10ms;
-		PUSH_UC <= '1';
-		wait for 10ms;
-		
-		wait for 200ms;
-		
-		------- Code Read ------
-		BINARY <= "0010";
-		wait for 10ms;
-		
-		PUSH_UL <= '0';
-		wait for 30ms;
-		PUSH_UL <= '1';
-		wait for 30ms;
-		
-		PUSH_UL <= '0';
-		wait for 30ms;
-		PUSH_UL <= '1';
-		wait for 30ms;
-		
-		PUSH_UL <= '0';
-		wait for 30ms;
-		PUSH_UL <= '1';
-		wait for 30ms;
-		
-		PUSH_UL <= '0';
-		wait for 30ms;
-		PUSH_UL <= '1';
-		wait for 30ms;
-		
-		PUSH_UL <= '0';
-		wait for 30ms;
-		PUSH_UL <= '1';
-		wait for 30ms;
-		
-		PUSH_UL <= '0';
-		wait for 30ms;
-		PUSH_UL <= '1';
-		wait for 30ms;
-		
-		PUSH_DC <= '0';
-		wait for 30ms;
-		PUSH_DC <= '1';
-		wait for 30ms;
-		
-		wait for 200ms;
+--		PUSH_UR <= '0';
+--		wait for 10ms;
+--		PUSH_UR <= '1';
+--		wait for 10ms;
+--		
+--		wait for 200ms;
+--		
+--		------- Code Write ------
+--		BINARY <= "0010";
+--		wait for 10ms;
+--		
+--		PUSH_UL <= '0';
+--		wait for 30ms;
+--		PUSH_UL <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_UL <= '0';
+--		wait for 30ms;
+--		PUSH_UL <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_UL <= '0';
+--		wait for 30ms;
+--		PUSH_UL <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_UL <= '0';
+--		wait for 30ms;
+--		PUSH_UL <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_UL <= '0';
+--		wait for 30ms;
+--		PUSH_UL <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_UL <= '0';
+--		wait for 30ms;
+--		PUSH_UL <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_DC <= '0';
+--		wait for 30ms;
+--		PUSH_DC <= '1';
+--		wait for 30ms;
+--		
+--		wait for 200ms;
+--		
+--		------- Write ------
+--		BINARY <= "0110";
+--		wait for 10ms;
+--		
+--		PUSH_UC <= '0';
+--		wait for 30ms;
+--		PUSH_UC <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_UR <= '0';
+--		wait for 30ms;
+--		PUSH_UR <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_UC <= '0';
+--		wait for 30ms;
+--		PUSH_UC <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_UR <= '0';
+--		wait for 30ms;
+--		PUSH_UR <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_DR <= '0';
+--		wait for 30ms;
+--		PUSH_DR <= '1';
+--		wait for 30ms;
+--		
+--		------- Main ------
+--		BINARY <= "0001";
+--		wait for 10ms;
+--		
+--		PUSH_UC <= '0';
+--		wait for 10ms;
+--		PUSH_UC <= '1';
+--		wait for 10ms;
+--		
+--		wait for 200ms;
+--		
+--		------- Code Read ------
+--		BINARY <= "0010";
+--		wait for 10ms;
+--		
+--		PUSH_UL <= '0';
+--		wait for 30ms;
+--		PUSH_UL <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_UL <= '0';
+--		wait for 30ms;
+--		PUSH_UL <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_UL <= '0';
+--		wait for 30ms;
+--		PUSH_UL <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_UL <= '0';
+--		wait for 30ms;
+--		PUSH_UL <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_UL <= '0';
+--		wait for 30ms;
+--		PUSH_UL <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_UL <= '0';
+--		wait for 30ms;
+--		PUSH_UL <= '1';
+--		wait for 30ms;
+--		
+--		PUSH_DC <= '0';
+--		wait for 30ms;
+--		PUSH_DC <= '1';
+--		wait for 30ms;
+--		
+--		wait for 200ms;
 		
 		------- Read ------
 

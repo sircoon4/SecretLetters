@@ -13,6 +13,4 @@ Simulator is doing circuit initialization process.
 at 0 ps, Instance /vt_secret_letters/uut/dp_module/ : Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
 Finished circuit initialization process.
 # run all
-Stopped at time : 1838933625 ns : File "C:/Users/SirCoon/Workspace/XilinxWorkspace/SecretLetters/screen_main.vhd" Line 134
-# run all
-Stopped at time : 2570743375 ns : File "C:/Users/SirCoon/Workspace/XilinxWorkspace/SecretLetters/screen_write.vhd" Line 105
+Stopped at time : 653602500 ns : File "C:/Users/SirCoon/Workspace/XilinxWorkspace/SecretLetters/screen_code_write.vhd" Line 215

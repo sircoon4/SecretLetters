@@ -30,5 +30,5 @@ Waiting for 1 sub-compilation(s) to finish...
 WARNING:Simulator - Unable to copy libPortabilityNOSH.dll to the simulation executable directory: boost::filesystem::copy_file: The system cannot find the path specified, "isim\vt_secret_letters_isim_beh.exe.sim\libPortability.dll".
 Compiled 19 VHDL Units
 Built simulation executable C:/Users/SirCoon/Workspace/XilinxWorkspace/SecretLetters/vt_secret_letters_isim_beh.exe
-Fuse Memory Usage: 36744 KB
-Fuse CPU Usage: 593 ms
+Fuse Memory Usage: 36392 KB
+Fuse CPU Usage: 546 ms

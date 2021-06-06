@@ -4,82 +4,98 @@ use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity screen_read is
-    Port ( FPGA_RSTB : in  STD_LOGIC;
-           CLK : in  STD_LOGIC;
-           lcd_w_enable : in  STD_LOGIC; -- 여기로 보내야돼.. LCD 암호화풀린걸
-           lcd_data_out : out  STD_LOGIC;
-           lcd_addr : out  STD_LOGIC_VECTOR (4 downto 0);
-           lcd_data : out  STD_LOGIC_VECTOR (7 downto 0);
-           seg_w_enable : in  STD_LOGIC; -- 여기로 보내는건 세그먼트에 쓰여진 코드 그대로..
-           seg_data_out : out  STD_LOGIC;
-           seg_addr : out  STD_LOGIC_VECTOR (2 downto 0);
-           seg_data : out  STD_LOGIC_VECTOR (3 downto 0);
-           push_ul : in  STD_LOGIC;
-           push_uc : in  STD_LOGIC;
-           push_ur : in  STD_LOGIC;
-           push_dl : in  STD_LOGIC;
-           push_dc : in  STD_LOGIC;
-           push_dr : in  STD_LOGIC;
-           binary : in  STD_LOGIC_VECTOR (3 downto 0);
-           screen_in : in  STD_LOGIC_VECTOR (2 downto 0);
-           screen_out : out  STD_LOGIC_VECTOR (2 downto 0);
-           rl_enable : out  STD_LOGIC; -- LCD 화면(암호화된게 들어온다)
-           rl_data_out : in  STD_LOGIC;
-           rl_addr : in  STD_LOGIC_VECTOR (4 downto 0);
-           rl_data : in  STD_LOGIC_VECTOR (7 downto 0);
-           rc_enable : out  STD_LOGIC; -- 세그먼트 화면
-           rc_data_out : in  STD_LOGIC;
-           rc_addr : in  STD_LOGIC_VECTOR (2 downto 0); -- digit
-           rc_data : in  STD_LOGIC_VECTOR (3 downto 0)); 
+    Port ( 
+			-- system
+			FPGA_RSTB : in  STD_LOGIC;
+			CLK : in  STD_LOGIC;
+
+			-- lcd display data to display module
+			lcd_w_enable : in  STD_LOGIC;
+			lcd_data_out : out  STD_LOGIC;
+			lcd_addr : out  STD_LOGIC_VECTOR (4 downto 0);
+			lcd_data : out  STD_LOGIC_VECTOR (7 downto 0);
+
+			-- 7 seg display data to display module
+			seg_w_enable : in  STD_LOGIC;
+			seg_data_out : out  STD_LOGIC;
+			seg_addr : out  STD_LOGIC_VECTOR (2 downto 0);
+			seg_data : out  STD_LOGIC_VECTOR (3 downto 0);
+
+			-- push buttons
+			push_ul : in  STD_LOGIC;
+			push_uc : in  STD_LOGIC;
+			push_ur : in  STD_LOGIC;
+			push_dl : in  STD_LOGIC;
+			push_dc : in  STD_LOGIC;
+			push_dr : in  STD_LOGIC;
+			
+			-- 4 bits binary input
+			binary : in  STD_LOGIC_VECTOR (3 downto 0);
+
+			-- current screen
+			screen_in : in  STD_LOGIC_VECTOR (2 downto 0);
+			
+			-- navigate to other screen
+			screen_out : out  STD_LOGIC_VECTOR (2 downto 0);
+
+			-- encrypted letter from main screen
+			rl_enable : out  STD_LOGIC;
+			rl_data_out : in  STD_LOGIC;
+			rl_addr : in  STD_LOGIC_VECTOR (4 downto 0);
+			rl_data : in  STD_LOGIC_VECTOR (7 downto 0);
+
+			-- 6 digit code for decryption from read code screen
+			rc_enable : out  STD_LOGIC;
+			rc_data_out : in  STD_LOGIC;
+			rc_addr : in  STD_LOGIC_VECTOR (2 downto 0);
+			rc_data : in  STD_LOGIC_VECTOR (3 downto 0)
+			);
 end screen_read;
 
 architecture Behavioral of screen_read is
 
-
+-- read code to 복호화 vector (8 bits binary)
 signal syn_code : STD_LOGIC_VECTOR (7 downto 0);
 
-type seg_reg is array( 0 to 5 ) of std_logic_vector( 3 downto 0 ); -- 2D array declare
-signal c_reg_file : seg_reg;
-
-type reg is array( 0 to 31 ) of std_logic_vector( 7 downto 0 );	-- 32(16*2)개의 LCD display에 각각 data 형식 정의
-signal decode_letter : reg;
-signal before_letter : reg;
-
-signal dl_cnt : std_logic_vector(4 downto 0);
-
-signal cnt : std_logic_vector(4 downto 0);
+-- 7 segments data 관련 signals
+type seg_reg is array( 0 to 5 ) of std_logic_vector( 3 downto 0 );
 signal seg_reg_file: seg_reg;
 signal cnt_seg_reg: std_logic_vector (2 downto 0);
 
+ -- read code
+signal c_reg_file : seg_reg;
 
-signal rl_enable_reg: std_logic;
+type reg is array( 0 to 31 ) of std_logic_vector( 7 downto 0 );
+signal before_letter : reg; -- 복호화된 편지
+signal decode_letter : reg; -- 암호화된 편지
 
+-- lcd data 전송 보조 signal
+signal cnt : std_logic_vector(4 downto 0);
 
 begin
 
-
---r1_data_decode <= rl_data xor syn_code;
-
+-- Input 처리 process 정의 
 process(FPGA_RSTB, CLK)
 begin
-	if FPGA_RSTB ='0' then
-		syn_code <= (others => '0');
+	if FPGA_RSTB ='0' then -- 초기화
+		screen_out <= "011";
+		rl_enable <= '0';
 	elsif CLK='1' and CLK'event then
-		if rc_data_out = '1' then
-			syn_code(7 downto 6) <= c_reg_file(3)(1 downto 0);
-			syn_code(5) <= c_reg_file(0)(0);
-			syn_code(4) <= c_reg_file(5)(0);
-			syn_code(3) <= c_reg_file(4)(0);
-			syn_code(2) <= c_reg_file(1)(0);
-			syn_code(1 downto 0) <= c_reg_file(2)(1 downto 0);
+		if screen_in /= "011" then -- screen이 넘어갔을 때, setting
+			screen_out <= "011";
+			rl_enable <= '0';
+		end if;
+		
+		if screen_in = "011" then -- current screen일 때 동작
+			rl_enable <= '1';
+			if push_dr = '0' then -- down-right button이 눌리면 main screen으로 이동
+				screen_out <= "000";
+			end if;
 		end if;
 	end if;
 end process;
 
-
---------------------------------- c_reg_file 만들기
-
-
+-- read code를 읽어들여 c_reg_file에 저장
 process(FPGA_RSTB, CLK)
 Begin
 	if FPGA_RSTB ='0' then
@@ -91,14 +107,29 @@ Begin
 	end if;
 end process;
 
+-- read code를 8 bit binary 복호화 vector로 변경하는 process
+-- syn_code signal에 저장
+process(FPGA_RSTB, CLK)
+begin
+	if FPGA_RSTB ='0' then
+		syn_code <= (others => '0');
+	elsif CLK='1' and CLK'event then
+		if rc_data_out = '1' then
+			-- read code 6 digit 각 자리에서 한 자리나 두 자리의 binary를 추출하여 임의로 배치
+			syn_code(7 downto 6) <= c_reg_file(3)(1 downto 0);
+			syn_code(5) <= c_reg_file(0)(0);
+			syn_code(4) <= c_reg_file(5)(0);
+			syn_code(3) <= c_reg_file(4)(0);
+			syn_code(2) <= c_reg_file(1)(0);
+			syn_code(1 downto 0) <= c_reg_file(2)(1 downto 0);
+		end if;
+	end if;
+end process;
+
+-- main screen에서 암호화된 편지를 읽고 이를 복호화하여 decode_letter에 저장
 process(FPGA_RSTB, CLK)
 Begin
 	if FPGA_RSTB ='0' then
-		-- rl_enable_reg <= '0';
---		for i in 0 to 31 loop
---			before_letter(i) <= X"20";
---		end loop;
-		
 		for i in 0 to 31 loop
 			decode_letter(i) <= X"20";
 		end loop;
@@ -106,105 +137,55 @@ Begin
 		if screen_in = "011" then
 			if rl_data_out ='1' then
 				before_letter(conv_integer(rl_addr)) <= rl_data;
-				decode_letter(conv_integer(rl_addr)) <= before_letter(conv_integer(rl_addr)) xor syn_code;
+				decode_letter(conv_integer(rl_addr)) <= before_letter(conv_integer(rl_addr)) xor syn_code; -- 복호화 vector와 xor 연산을 통해 복호화
 			end if;
 		end if;
 	end if;
 end process;
--- rl_enable <= rl_enable_reg;
 
-
----------------------------------------------- 이제부터 읽자
--- 해독된 r1_data_decode를 lcd로 보내야됨.
-
---
---process(FPGA_RSTB, CLK, rc_addr)
---begin
---	if FPGA_RSTB ='0' then								-- FPGA_RSTB 버튼 동작 시,
---		for i in 0 to 31 loop								-- 32(16*2)개의 LCD display에
---			reg_file(i) <= X"20";							-- initialize reg_file with 'space'
---		end loop;
---	elsif CLK='1' and CLK'event then					-- CLK가 rising edge 마다,
---		case rl_addr is
---			when "00000" => reg_file(0) <= r1_data_decode;
---			when "00001" => reg_file(1) <= r1_data_decode;
---			when "00010" => reg_file(2) <= r1_data_decode;
---			when "00011" => reg_file(3) <= r1_data_decode;
---			when "00100" => reg_file(4) <= r1_data_decode;
---			when "00101" => reg_file(5) <= r1_data_decode;
---			when "00110" => reg_file(6) <= r1_data_decode;
---			when "00111" => reg_file(7) <= r1_data_decode;
---			when "01000" => reg_file(8) <= r1_data_decode;
---			when "01001" => reg_file(9) <= r1_data_decode;
---			when "01010" => reg_file(10) <= r1_data_decode;
---			when "01011" => reg_file(11) <= r1_data_decode;
---			when "01100" => reg_file(12) <= r1_data_decode;
---			when "01101" => reg_file(13) <= r1_data_decode;
---			when "01110" => reg_file(14) <= r1_data_decode;
---			when "01111" => reg_file(15) <= r1_data_decode;
---			when "10000" => reg_file(16) <= r1_data_decode;
---			when "10001" => reg_file(17) <= r1_data_decode;
---			when "10010" => reg_file(18) <= r1_data_decode;
---			when "10011" => reg_file(19) <= r1_data_decode;
---			when "10100" => reg_file(20) <= r1_data_decode;
---			when "10101" => reg_file(21) <= r1_data_decode;
---			when "10110" => reg_file(22) <= r1_data_decode;
---			when "10111" => reg_file(23) <= r1_data_decode;
---			when "11000" => reg_file(24) <= r1_data_decode;
---			when "11001" => reg_file(25) <= r1_data_decode;
---			when "11010" => reg_file(26) <= r1_data_decode;
---			when "11011" => reg_file(27) <= r1_data_decode;
---			when "11100" => reg_file(28) <= r1_data_decode;
---			when "11101" => reg_file(29) <= r1_data_decode;
---			when "11110" => reg_file(30) <= r1_data_decode;
---			when others => reg_file(31) <= r1_data_decode;
---		end case;
---	end if;
---end process;
-
+-- decode_letter를 lcd data로 전송
 process(FPGA_RSTB, CLK)
 Begin
-	if FPGA_RSTB = '0' then								-- FPGA_RSTB 버튼 동작 시,
-		cnt <= (others => '0');								-- cnt는 "00000"
-		lcd_data_out <= '0';										-- data_out는 '0'
-	elsif CLK='1' and CLK'event then					-- CLK가 rising edge 마다,
-		if lcd_w_enable = '1' then								-- w_enable이'1'(write)이면,
-			lcd_data <= decode_letter(conv_integer (cnt));		-- data에 regfile의 cnt번째 array를 할당
-			lcd_addr <= cnt;										-- addr에 cnt 값 할당
-			lcd_data_out <= '1';									-- data_out는 '1'(write)
+	if FPGA_RSTB = '0' then
+		cnt <= (others => '0');
+		lcd_data_out <= '0';
+	elsif CLK='1' and CLK'event then
+		if lcd_w_enable = '1' then
+			lcd_data <= decode_letter(conv_integer (cnt));
+			lcd_addr <= cnt;
+			lcd_data_out <= '1';
 			
-			if cnt= X"1F" then 								-- cnt가 X"1F"일 때
-				cnt <= (others =>'0');							-- cnt는 0부터 다시 시작
-			else													-- cnt가 X"1F"보다 작으면
-				cnt <= cnt + 1;									-- cnt의 다음 값은 +1씩 증가
+			if cnt= X"1F" then
+				cnt <= (others =>'0');
+			else
+				cnt <= cnt + 1;
 			end if;
-		else														-- w_enable이'0'(read)이면,
-			lcd_data_out <= '0'; 										-- data_out는 '0'(do not write)
+		else
+			lcd_data_out <= '0';
 		end if;
 	end if;
 end process;
 
-
----------------------------------------------------------------------------------------------
-
+-- 7 segments data 정의 process
 process(push_dl,CLK)
 Begin
 	if screen_in = "011" then
-		if (push_dl='0') then
-			for i in 0 to 5 loop
-				seg_reg_file(i) <= "0000";
-			end loop;
-		else
+		if (push_dl='0') then -- down-left push button이 눌리는 동안 read code를 segments data로 지정
 			seg_reg_file(0)<=c_reg_file(0);
 			seg_reg_file(1)<=c_reg_file(1);
 			seg_reg_file(2)<=c_reg_file(2);
 			seg_reg_file(3)<=c_reg_file(3);
 			seg_reg_file(4)<=c_reg_file(4);
 			seg_reg_file(5)<=c_reg_file(5);
+		else -- button을 누르고 있지 않으면 000000을 segments data로 지정
+			for i in 0 to 5 loop
+				seg_reg_file(i) <= "0000";
+			end loop;
 		end if;
 	end if;
 end process;
-	
+
+-- 7 segments data 전송 process
 process(FPGA_RSTB, CLK)
 Begin
 	if FPGA_RSTB ='0' then
@@ -214,39 +195,12 @@ Begin
 		seg_data <= seg_reg_file(conv_integer(cnt_seg_reg));
 			seg_addr <= cnt_seg_reg;
 			seg_data_out <= '1';
-		if cnt_seg_reg = "101" then								-- segment 6자리까지 갔을 때
+		if cnt_seg_reg = "101" then								-- segment 6  
 			cnt_seg_reg <= (others => '0');
 		else
 			cnt_seg_reg <= cnt_seg_reg + 1;
 		end if;
 	end if;
 end process;
-
------------------------------------------------------------------
-
-
---- 오른쪽아래버튼이 백인데 이거 누르면 메인스크린으로 감. 근데 사실 리셋눌러도 메인으로 감
-
-process(FPGA_RSTB, CLK)
-begin
-	if FPGA_RSTB ='0' then
-		screen_out <= "011";
-		rl_enable <= '0';
-	elsif CLK='1' and CLK'event then
-		if screen_in /= "011" then
-			screen_out <= "011";
-			rl_enable <= '0';
-		end if;
-		
-		if screen_in = "011" then
-			rl_enable <= '1';
-			if push_dr = '0' then
-				screen_out <= "000";
-			end if;
-		end if;
-	end if;
-end process;
-
-
 
 end Behavioral;
